@@ -13,6 +13,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 sheet_headers = ["価格", "コメント", "画像", "URL"]
 target_url = 'https://jp.mercari.com/'
 sheet_title = "mercari_scraping_results"
+search_title = "apple"
 
 # スプレッドシート設定
 scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
@@ -76,7 +77,7 @@ try:
         if search_input.is_displayed():
             print("表示されている入力欄が見つかりました")
             search_input.clear()
-            search_input.send_keys("apple pencil pro")
+            search_input.send_keys(search_title)
             found_visible = True
             break # 見つかったらループを抜ける
             
@@ -90,54 +91,89 @@ try:
     # 検索結果が表示されるまで待つ
     time.sleep(5)
 
+    # --- 追加: 最深部までスクロールする処理 ---
+    print("ページ最下部までスクロールを開始します...")
+    
+    # 現在のページの高さを取得
+    last_height = driver.execute_script("return document.body.scrollHeight")
+
+    while True:
+        # 最下部までスクロール
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        
+        # 新しい商品が読み込まれるのを待つ（通信環境によって調整してください）
+        time.sleep(4)
+
+        # スクロール後の新しい高さを取得
+        new_height = driver.execute_script("return document.body.scrollHeight")
+
+        # 高さが変わっていなければ、これ以上読み込むものがないと判断して終了
+        if new_height == last_height:
+            print("ページの最下部に到達しました")
+            break
+        
+        last_height = new_height
+        print("スクロール中... 新しい商品を読み込みました")
+    # --- 追加終了 ---
+
     # 一覧取得
     thumbnails = driver.find_elements(By.CSS_SELECTOR, '.merItemThumbnail')
-    print(f"取得した商品数: {len(thumbnails)}")
 
-    # 書き込み用リスト
-    rows_to_add = []
-
-    # 上記要素をループで回し、id属性がmerItemThumbnail を抽出する
+    # 上記要素をループで回し、URLリスト取得
+    product_urls = []
     for thumbnail in thumbnails:
         try:
-            # 上記要素のaria-labelを取得
-            aria_label = thumbnail.get_attribute("aria-label")
-            
-            if aria_label:
-                # 正規表現で「数字+円」のパターンを探す（位置に関係なく抽出）
-                match = re.search(r'(\d{1,6}(?:,\d{6})*)円', aria_label)
-                
-                if match:
-                    # カンマを除去して数値文字列にする
-                    price_str = match.group(1).replace(",", "")
-                else:
-                    price_str = "0"
-                
-            #    閾値の金額以下の場合、スプレッドシートに出力
-                
-                # 数値に変換
-                price = int(price_str)
+            # thumbnail要素の親要素（リンク）を取得する
+            product_url_elm = thumbnail.find_element(By.XPATH, './ancestor::a[@data-testid="thumbnail-link"]')
+            product_url = product_url_elm.get_attribute("href")
 
-                # thumbnail要素の親要素（リンク）を取得する
-                product_url_elm = thumbnail.find_element(By.XPATH, './ancestor::a[@data-testid="thumbnail-link"]')
-                product_url = product_url_elm.get_attribute("href")
+            # メルカリショップは省く
+            if product_url and re.search(rf"{re.escape(target_url)}shops", product_url):
+                continue
 
-                # コメント
-                
-                
-                # 閾値（例: 20000円）以下の場合
-                if price <= 20000:
-                    print(f"閾値以下の商品を発見: {price}円 - {aria_label}")
-                    # リストに追加するだけ（APIは呼ばない）
-                    rows_to_add.append([aria_label, price, product_url])
-                
+            product_urls.append(product_url)
         except Exception as inner_e:
             # 個別の要素取得失敗はスキップして続行
             continue
 
-    # ループが終わった後に、まとめて書き込む
+    print(f"取得した商品数: {len(product_urls)}")
+    
+    # 商品詳細画面で必要情報取得
+    rows_to_add = []
+    for product_url in product_urls:
+        try:
+            driver.get(product_url)
+            print(product_url)
+            time.sleep(2) # ページ遷移待ち
+            # ["価格", "コメント", "画像", "URL"]
+
+            # 価格
+            price_elm = driver.find_element(By.CSS_SELECTOR, "[data-testid='price'] > span:nth-of-type(2)")
+            price = price_elm.text
+
+            # コメント
+            comment_elm = driver.find_element(By.CSS_SELECTOR, "[data-testid='description']")
+            comment = comment_elm.text
+
+            # 画像
+            img_elm = driver.find_element(By.CSS_SELECTOR, "[data-testid='image-0']").find_element(By.TAG_NAME, "img")
+            print(img_elm)
+            src = img_elm.get_attribute("src")
+            
+            # URLをIMAGE関数で囲む
+            image_formula = f'=IMAGE("{src}", 4, 200, 200)'
+
+            # スプシの行作成 (src ではなく image_formula を入れる)
+            rows_to_add.append([price, comment, image_formula, product_url])
+
+        except Exception as inner_e:
+            print(f"商品詳細の情報取得に失敗しました: {inner_e}")
+            continue
+
+    # スプレッドシートにまとめて書き込む
     if rows_to_add:
-        sheet.append_rows(rows_to_add)
+        # value_input_option='USER_ENTERED' を指定することで、=IMAGE() が数式として機能する
+        sheet.append_rows(rows_to_add, value_input_option='USER_ENTERED')
         print(f"{len(rows_to_add)}件のデータをスプレッドシートに書き込みました")
     else:
         print("条件に合う商品は見つかりませんでした")
