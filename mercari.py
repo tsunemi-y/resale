@@ -14,6 +14,8 @@ sheet_headers = ["価格", "コメント", "画像", "URL"]
 target_url = 'https://jp.mercari.com/'
 sheet_title = "mercari_scraping_results"
 search_title = "apple"
+scrolle_volume = "1000"
+scroll_count = 10  # 10回スクロールする（必要に応じて増やしてください）
 
 # スプレッドシート設定
 scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
@@ -89,32 +91,27 @@ try:
     print("検索アイコンをクリックしました")
 
     # 検索結果が表示されるまで待つ
-    time.sleep(5)
+    time.sleep(3)
 
-    # --- 追加: 最深部までスクロールする処理 ---
-    print("ページ最下部までスクロールを開始します...")
+    # --- 修正: 回数指定で確実にスクロールする ---
+    print("スクロールを開始します...")
     
-    # 現在のページの高さを取得
-    last_height = driver.execute_script("return document.body.scrollHeight")
-
-    while True:
-        # 最下部までスクロール
+    for i in range(scroll_count):
+        # 現在のスクロール位置から、少しずつ下に移動させる
+        # 1000だと５回で最深部までいく
+        driver.execute_script(f"window.scrollBy(0, {scrolle_volume});")
+        time.sleep(1)
+        driver.execute_script(f"window.scrollBy(0, {scrolle_volume});")
+        time.sleep(1)
+        
+        # 最後に最下部へダメ押し
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
         
-        # 新しい商品が読み込まれるのを待つ（通信環境によって調整してください）
-        time.sleep(4)
-
-        # スクロール後の新しい高さを取得
-        new_height = driver.execute_script("return document.body.scrollHeight")
-
-        # 高さが変わっていなければ、これ以上読み込むものがないと判断して終了
-        if new_height == last_height:
-            print("ページの最下部に到達しました")
-            break
-        
-        last_height = new_height
-        print("スクロール中... 新しい商品を読み込みました")
-    # --- 追加終了 ---
+        print(f"スクロール中... ({i+1}/{scroll_count})")
+        time.sleep(4) # 読み込み待ち
+    
+    print("スクロール終了")
+    # --- 修正終了 ---
 
     # 一覧取得
     thumbnails = driver.find_elements(By.CSS_SELECTOR, '.merItemThumbnail')
@@ -146,6 +143,12 @@ try:
             print(product_url)
             time.sleep(2) # ページ遷移待ち
             # ["価格", "コメント", "画像", "URL"]
+
+            # オークション商品除外
+            tag_elm = driver.find_element(By.CSS_SELECTOR, ".tagText__5000b0c4")
+            tag_text = tag_elm.text
+            if tag_text == 'オークション商品':
+                continue
 
             # 価格
             price_elm = driver.find_element(By.CSS_SELECTOR, "[data-testid='price'] > span:nth-of-type(2)")
