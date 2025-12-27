@@ -17,9 +17,13 @@ from oauth2client.service_account import ServiceAccountCredentials
 sheet_headers = ["価格", "コメント", "画像", "URL"]
 target_url = 'https://jp.mercari.com/'
 sheet_title = "mercari_scraping_results"
-search_title = "apple"
+search_title = "apple pencil pro 純正"
 scrolle_volume = "1000"
 scroll_count = 15  # 10回スクロールする（必要に応じて増やしてください）
+current_scroll_position = 0 # 現在のスクロール位置
+scroll_step = 500 # 1回のスクロール量 (ピクセル)
+price_min = 300
+price_max = 10000
 
 # スプレッドシート設定
 scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
@@ -51,7 +55,10 @@ options = webdriver.ChromeOptions()
 options.add_experimental_option("detach", True) # ブラウザを自動で閉じない設定
 
 # ローカルの Chrome を使用する
-driver = webdriver.Chrome(options=options)
+try:
+    driver = webdriver.Chrome(options=options)
+except Exception as e:
+    print(f"failed webdriver: {e}")
 
 # Selenium 経由でブラウザを操作する
 driver.get(target_url)
@@ -110,6 +117,7 @@ try:
     # 条件タグと詳細のマッピング作ってそれをループでやる
     search_narrow_downs = [
         ["item_types", "mercari"], # 出品者
+        ["price", "price"], # 価格
         ["d664efe3-ae5a-4824-b729-e789bf93aba9", "B38F1DC9286E0B80812D9B19DB14298C1FF1116CA8332D9EE9061026635C9088"], # 出品形式
     ]
     for search_narrow_down in search_narrow_downs:
@@ -137,6 +145,14 @@ try:
             print(f"ヘッダーをクリックしました")
             time.sleep(1) # アニメーション待ち
 
+            # 価格対応
+            if header_id == "price":
+                price_min_elm = li_elm.find_element(By.CSS_SELECTOR, f"input[name='priceMin']")
+                price_min_elm.send_keys(price_min)
+                price_max_elm = li_elm.find_element(By.CSS_SELECTOR, f"input[name='priceMax']")
+                price_max_elm.send_keys(price_max)
+                continue
+
             # 5. チェックボックスを選択
             # inputタグを探す
             body_input = li_elm.find_element(By.CSS_SELECTOR, f"input[value='{body_value}']")
@@ -163,12 +179,6 @@ try:
     # --- 修正: 動的スクロール (徐々にスクロール) ---
     print("スクロールを開始します...")
 
-    # 現在のスクロール位置
-    current_scroll_position = 0
-    
-    # 1回のスクロール量 (ピクセル)
-    scroll_step = 500
-    
     # 変化がなかった回数をカウントして無限ループ防止
     no_change_count = 0
     max_no_change = 3  # 3回連続で高さが変わらなければ終了
@@ -231,7 +241,6 @@ try:
     print(f"取得した商品数: {len(product_urls)}")
     
     # 商品詳細画面で必要情報取得
-    rows_to_add = []
     for product_url in product_urls:
         try:
             driver.get(product_url)
@@ -254,20 +263,13 @@ try:
             # URLをIMAGE関数で囲む
             image_formula = f'=IMAGE("{src}", 4, 200, 200)'
 
-            # スプシの行作成 (src ではなく image_formula を入れる)
-            rows_to_add.append([price, comment, image_formula, product_url])
+            # スプシに行を追加 (即時反映)
+            sheet.append_row([price, comment, image_formula, product_url], value_input_option='USER_ENTERED')
+            print(f"スプレッドシートに書き込みました: {price}")
 
         except Exception as inner_e:
             print(f"商品詳細の情報取得に失敗しました: {inner_e}")
             continue
-
-    # スプレッドシートにまとめて書き込む
-    if rows_to_add:
-        # value_input_option='USER_ENTERED' を指定することで、=IMAGE() が数式として機能する
-        sheet.append_rows(rows_to_add, value_input_option='USER_ENTERED')
-        print(f"{len(rows_to_add)}件のデータをスプレッドシートに書き込みました")
-    else:
-        print("条件に合う商品は見つかりませんでした")
 
 except Exception as e:
     print(f"エラーが発生しました: {e}")
