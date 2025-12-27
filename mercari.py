@@ -1,3 +1,7 @@
+# todo：
+# ・スクロールを回数固定ではなく動的に
+# ・スプシには動的に書き込みしてすぐに購入できるように
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -15,7 +19,7 @@ target_url = 'https://jp.mercari.com/'
 sheet_title = "mercari_scraping_results"
 search_title = "apple"
 scrolle_volume = "1000"
-scroll_count = 10  # 10回スクロールする（必要に応じて増やしてください）
+scroll_count = 15  # 10回スクロールする（必要に応じて増やしてください）
 
 # スプレッドシート設定
 scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
@@ -93,23 +97,114 @@ try:
     # 検索結果が表示されるまで待つ
     time.sleep(3)
 
-    # --- 修正: 回数指定で確実にスクロールする ---
+    # 絞り込みボタン押下
+    # 絞り込みボタンをクリック
+    try:
+        filter_button = driver.find_element(By.CSS_SELECTOR, '.merButton.secondary__01a6ef84.small__01a6ef84')
+        filter_button.click()
+        print("絞り込みボタンをクリックしました")
+    except Exception as e:
+        print(f"絞り込みボタンのクリックに失敗しました: {e}")
+
+    # 表示する商品の条件絞り込み
+    # 条件タグと詳細のマッピング作ってそれをループでやる
+    search_narrow_downs = [
+        ["item_types", "mercari"], # 出品者
+        ["d664efe3-ae5a-4824-b729-e789bf93aba9", "B38F1DC9286E0B80812D9B19DB14298C1FF1116CA8332D9EE9061026635C9088"], # 出品形式
+    ]
+    for search_narrow_down in search_narrow_downs:
+        try:
+            header_id = search_narrow_down[0]
+            body_value = search_narrow_down[1]
+            
+            print(f"絞り込み処理開始: {header_id} -> {body_value}")
+
+            # 1. 親要素(li)が表示されるまで待つ (最大10秒)
+            li_elm = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, f"[data-testid='{header_id}']"))
+            )
+
+            print(li_elm)
+            # 2. クリックすべきアコーディオンヘッダーを探す
+            # .merAccordion が見つからない場合は li_elm 自体をターゲットにする
+            try:
+                header_clickable = li_elm.find_element(By.CSS_SELECTOR, ".merAccordion")
+            except:
+                header_clickable = li_elm
+
+            # 4. ヘッダーをクリックして開く
+            header_clickable.click()
+            print(f"ヘッダーをクリックしました")
+            time.sleep(1) # アニメーション待ち
+
+            # 5. チェックボックスを選択
+            # inputタグを探す
+            body_input = li_elm.find_element(By.CSS_SELECTOR, f"input[value='{body_value}']")
+            
+            # JavaScriptで強制クリック (inputが隠れていても効く)
+            driver.execute_script("arguments[0].click();", body_input)
+            print(f"値 {body_value} を選択しました")
+            
+            # time.sleep(3) # 絞り込み反映待ち
+
+        except Exception as e:
+            print(f"検索絞り込みで失敗 ({search_narrow_down}): {e}")
+            continue
+    
+    # 絞り込みメニューを閉じる（完了ボタンなどをクリック）
+    try:
+        close_filter_button = driver.find_element(By.CSS_SELECTOR, '.header__1d92fe3f > .merIconButton')
+        close_filter_button.click()
+        print("絞り込みメニューを閉じました")
+        time.sleep(2) # メニューが閉じてリストが更新されるのを待つ
+    except Exception as e:
+        print(f"絞り込みメニューを閉じるボタンのクリックに失敗しました: {e}")
+
+    # --- 修正: 動的スクロール (徐々にスクロール) ---
     print("スクロールを開始します...")
+
+    # 現在のスクロール位置
+    current_scroll_position = 0
     
-    for i in range(scroll_count):
-        # 現在のスクロール位置から、少しずつ下に移動させる
-        # 1000だと５回で最深部までいく
-        driver.execute_script(f"window.scrollBy(0, {scrolle_volume});")
-        time.sleep(1)
-        driver.execute_script(f"window.scrollBy(0, {scrolle_volume});")
-        time.sleep(1)
-        
-        # 最後に最下部へダメ押し
-        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        
-        print(f"スクロール中... ({i+1}/{scroll_count})")
-        time.sleep(4) # 読み込み待ち
+    # 1回のスクロール量 (ピクセル)
+    scroll_step = 500
     
+    # 変化がなかった回数をカウントして無限ループ防止
+    no_change_count = 0
+    max_no_change = 3  # 3回連続で高さが変わらなければ終了
+
+    while True:
+        # 現在のページ高さを取得
+        last_height = driver.execute_script("return document.body.scrollHeight")
+
+        # 少しずつスクロールする
+        current_scroll_position += scroll_step
+        driver.execute_script(f"window.scrollTo(0, {current_scroll_position});")
+        
+        # 読み込み待ち (少し短めでOK)
+        time.sleep(0.5)
+
+        # 現在の高さがスクロール位置より大きいか確認（まだ下にコンテンツがあるか）
+        # または、スクロール位置がページ高さを超えた場合に、新しいコンテンツが読み込まれたか確認
+        new_height = driver.execute_script("return document.body.scrollHeight")
+        
+        # スクロール位置がページ最下部付近に達したかチェック
+        if current_scroll_position >= new_height:
+            # 最下部に達したと思われる場合、少し待って本当に増えないか確認
+            time.sleep(2)
+            new_height_after_wait = driver.execute_script("return document.body.scrollHeight")
+            
+            if new_height_after_wait == last_height:
+                no_change_count += 1
+                print(f"最下部付近待機: {no_change_count}/{max_no_change}")
+                if no_change_count >= max_no_change:
+                    print("ページの最下部に到達しました")
+                    break
+            else:
+                # 高さが伸びたのでリセットして続行
+                no_change_count = 0
+                print("新しいコンテンツが読み込まれました")
+        
     print("スクロール終了")
     # --- 修正終了 ---
 
@@ -124,9 +219,9 @@ try:
             product_url_elm = thumbnail.find_element(By.XPATH, './ancestor::a[@data-testid="thumbnail-link"]')
             product_url = product_url_elm.get_attribute("href")
 
-            # メルカリショップは省く
-            if product_url and re.search(rf"{re.escape(target_url)}shops", product_url):
-                continue
+            # # メルカリショップは省く
+            # if product_url and re.search(rf"{re.escape(target_url)}shops", product_url):
+            #     continue
 
             product_urls.append(product_url)
         except Exception as inner_e:
@@ -142,13 +237,6 @@ try:
             driver.get(product_url)
             print(product_url)
             time.sleep(2) # ページ遷移待ち
-            # ["価格", "コメント", "画像", "URL"]
-
-            # オークション商品除外
-            tag_elm = driver.find_element(By.CSS_SELECTOR, ".tagText__5000b0c4")
-            tag_text = tag_elm.text
-            if tag_text == 'オークション商品':
-                continue
 
             # 価格
             price_elm = driver.find_element(By.CSS_SELECTOR, "[data-testid='price'] > span:nth-of-type(2)")
