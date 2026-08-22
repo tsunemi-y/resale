@@ -205,10 +205,14 @@
   }
   .num-chip .dots{
     display:flex;
-    flex-wrap:wrap;
+    flex-direction:column;
+    align-items:center;
+    gap:3px;
+  }
+  .num-chip .dot-row{
+    display:flex;
     justify-content:center;
     gap:4px;
-    max-width:80px;
   }
   .num-chip .dots i{
     width:9px;height:9px;border-radius:50%;
@@ -314,6 +318,61 @@
   .feedback.good{color:#e0862a;}
   .feedback.bad{color:#ff6fa5;}
 
+  /* ===== きせかえコーナー ===== */
+  .dressup{
+    margin-top:22px;
+    background:#fff;
+    border-radius:24px;
+    padding:16px;
+    box-shadow:0 5px 0 #f0d9ea, 0 10px 20px rgba(150,90,150,.15);
+  }
+  .dressup h2{
+    margin:2px 0 12px;
+    font-size:16px;
+    text-align:center;
+    color:var(--pink-deep);
+  }
+  .avatar-stage{
+    position:relative;
+    width:min(240px, 70vw);
+    aspect-ratio:200/260;
+    margin:0 auto;
+    background:radial-gradient(circle at 50% 30%, #fff5fb, #fbeaf7 70%);
+    border-radius:20px;
+  }
+  .avatar-doll{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+  }
+  .avatar-slot{
+    position:absolute;
+    width:15%;
+    aspect-ratio:1;
+    max-width:40px;
+    transform:translate(-50%,-50%);
+    border-radius:50%;
+    background:rgba(255,255,255,.75);
+    border:2px dashed #e3b8d8;
+    cursor:pointer;
+    transition:transform .15s ease;
+  }
+  .avatar-slot svg{width:100%;height:100%;}
+  .avatar-slot.filled{
+    border-style:solid;
+    border-color:#ffe066;
+    background:#fff;
+    box-shadow:0 2px 6px rgba(150,90,150,.25);
+  }
+  .avatar-slot:active{transform:translate(-50%,-50%) scale(.9);}
+  .dressup-hint{
+    text-align:center;
+    font-size:12px;
+    color:var(--ink-soft);
+    margin-top:12px;
+  }
+
   /* ===== コレクション ===== */
   .collection{
     margin-top:22px;
@@ -348,7 +407,17 @@
     align-items:center;
     justify-content:center;
   }
+  .item-slot{cursor:pointer;}
   .item-slot svg{width:70%;height:70%;}
+  .item-slot.equipped{
+    outline:3px solid #ffe066;
+    outline-offset:-3px;
+    background:linear-gradient(160deg,#fff3d9,#ffe9f5);
+  }
+  .item-slot .wornmark{
+    position:absolute; top:2px; left:4px;
+    font-size:11px;
+  }
   .item-slot .badge{
     position:absolute; bottom:2px; right:4px;
     font-size:10px; background:var(--pink-deep); color:#fff;
@@ -510,6 +579,32 @@
     <div class="equation" id="equation"></div>
     <div class="choices" id="choices"></div>
     <div class="feedback" id="feedback"></div>
+  </div>
+
+  <div class="dressup">
+    <h2>👗 きせかえコーナー 👗</h2>
+    <div class="avatar-stage">
+      <svg class="avatar-doll" viewBox="0 0 200 260">
+        <path d="M46,104 Q38,28 100,24 Q162,28 154,104 Q158,56 100,48 Q42,56 46,104 Z" fill="#d9a66b"/>
+        <path d="M62,150 Q100,138 138,150 L152,260 L48,260 Z" fill="#ffd9ec"/>
+        <path d="M62,150 Q100,138 138,150" fill="none" stroke="#ff9ecb" stroke-width="3"/>
+        <circle cx="100" cy="82" r="38" fill="#ffe0c2"/>
+        <circle cx="87" cy="84" r="3.6" fill="#5a3d3d"/><circle cx="113" cy="84" r="3.6" fill="#5a3d3d"/>
+        <circle cx="76" cy="94" r="5.4" fill="#ffb3c6" opacity=".55"/><circle cx="124" cy="94" r="5.4" fill="#ffb3c6" opacity=".55"/>
+        <path d="M89,98 Q100,105 111,98" stroke="#a35d5d" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+      </svg>
+      <div class="avatar-slot" data-shape="tiara" style="left:50%;top:8%"></div>
+      <div class="avatar-slot" data-shape="hairclip" style="left:75%;top:23%"></div>
+      <div class="avatar-slot" data-shape="earrings" style="left:27%;top:35%"></div>
+      <div class="avatar-slot" data-shape="necklace" style="left:50%;top:51%"></div>
+      <div class="avatar-slot" data-shape="ribbon" style="left:28%;top:59%"></div>
+      <div class="avatar-slot" data-shape="brooch" style="left:50%;top:68%"></div>
+      <div class="avatar-slot" data-shape="wand" style="left:16%;top:78%"></div>
+      <div class="avatar-slot" data-shape="bracelet" style="left:73%;top:76%"></div>
+      <div class="avatar-slot" data-shape="ring" style="left:76%;top:88%"></div>
+      <div class="avatar-slot" data-shape="shoes" style="left:50%;top:97%"></div>
+    </div>
+    <div class="dressup-hint">したの宝箱からアイテムをタップして きせかえしよう！もう一度タップではずせるよ</div>
   </div>
 
   <div class="collection">
@@ -877,11 +972,17 @@
   let state = loadState();
 
   function loadState(){
+    let s = null;
     try{
       const raw = localStorage.getItem(SAVE_KEY);
-      if(raw) return JSON.parse(raw);
+      if(raw) s = JSON.parse(raw);
     }catch(e){}
-    return {streak:0, collected:[], muted:false};
+    if(!s) s = {};
+    if(!Array.isArray(s.collected)) s.collected = [];
+    if(typeof s.streak !== "number") s.streak = 0;
+    if(typeof s.muted !== "boolean") s.muted = false;
+    if(!s.equipped || typeof s.equipped !== "object") s.equipped = {};
+    return s;
   }
   function saveState(){
     try{ localStorage.setItem(SAVE_KEY, JSON.stringify(state)); }catch(e){}
@@ -964,7 +1065,10 @@
 
   function dotsHtml(n){
     let h = "";
-    for(let i=0;i<n;i++) h += "<i></i>";
+    for(let i=0; i<n; i+=5){
+      const count = Math.min(5, n-i);
+      h += `<div class="dot-row">${"<i></i>".repeat(count)}</div>`;
+    }
     return h;
   }
 
@@ -1116,6 +1220,50 @@
     nextProblem();
   });
 
+  /* ---------- きせかえ ---------- */
+  function toggleEquip(itemId){
+    const item = ITEMS.find(i=>i.id===itemId);
+    if(!item) return;
+    if(state.equipped[item.shape] === itemId){
+      delete state.equipped[item.shape];
+    }else{
+      state.equipped[item.shape] = itemId;
+    }
+    saveState();
+    renderAvatar();
+    renderCollection();
+  }
+
+  function renderAvatar(){
+    SHAPES.forEach(shape=>{
+      const slot = document.querySelector(`.avatar-slot[data-shape="${shape.id}"]`);
+      if(!slot) return;
+      const itemId = state.equipped[shape.id];
+      if(itemId){
+        const item = ITEMS.find(i=>i.id===itemId);
+        slot.innerHTML = item ? `<svg viewBox="0 0 100 100">${itemIconInner(item)}</svg>` : "";
+        slot.classList.add("filled");
+        slot.title = item ? item.name + "（タップではずす）" : "";
+      }else{
+        slot.innerHTML = "";
+        slot.classList.remove("filled");
+        slot.title = shape.name + "（からっぽ）";
+      }
+    });
+  }
+
+  document.querySelectorAll(".avatar-slot").forEach(slot=>{
+    slot.addEventListener("click", ()=>{
+      const shapeId = slot.dataset.shape;
+      if(state.equipped[shapeId]){
+        delete state.equipped[shapeId];
+        saveState();
+        renderAvatar();
+        renderCollection();
+      }
+    });
+  });
+
   function renderCollection(){
     const grid = document.getElementById("itemGrid");
     grid.innerHTML = "";
@@ -1131,16 +1279,24 @@
     }else{
       order.forEach(id=>{
         const it = ITEMS.find(x=>x.id===id);
+        const isWorn = state.equipped[it.shape] === id;
         const slot = document.createElement("div");
-        slot.className = "item-slot";
-        slot.title = it.name;
+        slot.className = "item-slot" + (isWorn ? " equipped" : "");
+        slot.title = it.name + (isWorn ? "（そうちゅう・タップではずす）" : "（タップできせかえ）");
         slot.innerHTML = `<svg viewBox="0 0 100 100">${itemIconInner(it)}</svg>`;
+        if(isWorn){
+          const w = document.createElement("span");
+          w.className = "wornmark";
+          w.textContent = "✨";
+          slot.appendChild(w);
+        }
         if(counts[id] > 1){
           const b = document.createElement("span");
           b.className = "badge";
           b.textContent = "×" + counts[id];
           slot.appendChild(b);
         }
+        slot.addEventListener("click", ()=>toggleEquip(id));
         grid.appendChild(slot);
       });
     }
@@ -1199,6 +1355,7 @@
   /* ---------- 初期化 ---------- */
   refreshSoundBtn();
   updateStreakGauge();
+  renderAvatar();
   renderCollection();
   renderLegend();
   nextProblem();
