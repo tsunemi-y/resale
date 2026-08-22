@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>プリンセスたしざんランド</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>👑</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Kiwi+Maru:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg1:#ffd9ec;
+    --bg2:#dcd2ff;
+    --bg3:#c9ecff;
+    --card:#fffaff;
+    --ink:#7a4a76;
+    --ink-soft:#a97ea3;
+    --gold:#f4c14e;
+    --pink-deep:#ff6fa5;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0;
+    padding:0;
+    min-height:100%;
+    font-family:'Kiwi Maru','Baloo 2',sans-serif;
+    color:var(--ink);
+    overflow-x:hidden;
+  }
+  body{
+    background:
+      radial-gradient(circle at 15% 20%, #fff 0%, transparent 2%),
+      radial-gradient(circle at 80% 10%, #fff 0%, transparent 2%),
+      radial-gradient(circle at 60% 70%, #fff 0%, transparent 2%),
+      linear-gradient(160deg, var(--bg1), var(--bg2) 55%, var(--bg3));
+    min-height:100vh;
+    position:relative;
+  }
+
+  /* ===== 背景のきらきら ===== */
+  .sparkles{
+    position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:0;
+  }
+  .sparkles span{
+    position:absolute;
+    font-size:20px;
+    opacity:.55;
+    animation:float 9s linear infinite;
+    filter:drop-shadow(0 0 4px #fff);
+  }
+  @keyframes float{
+    0%{transform:translateY(110vh) rotate(0deg) scale(.7); opacity:0;}
+    10%{opacity:.7;}
+    90%{opacity:.6;}
+    100%{transform:translateY(-10vh) rotate(360deg) scale(1.1); opacity:0;}
+  }
+
+  .wrap{
+    position:relative;
+    z-index:1;
+    max-width:640px;
+    margin:0 auto;
+    padding:18px 14px 60px;
+  }
+
+  header{
+    text-align:center;
+    margin-bottom:10px;
+  }
+  h1{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:clamp(20px,6.4vw,34px);
+    margin:6px 0 2px;
+    color:var(--pink-deep);
+    text-shadow: 2px 2px 0 #fff, -1px -1px 0 #fff, 0 3px 8px rgba(255,111,165,.35);
+    letter-spacing:.5px;
+    word-break:keep-all;
+    white-space:nowrap;
+  }
+  header .sub{
+    font-size:14px;
+    color:var(--ink-soft);
+  }
+
+  .top-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin:14px 0;
+  }
+
+  .mascot-box{
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .mascot{
+    font-size:46px;
+    display:inline-block;
+    animation:bob 2.6s ease-in-out infinite;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,.15));
+  }
+  @keyframes bob{
+    0%,100%{transform:translateY(0) rotate(-2deg);}
+    50%{transform:translateY(-6px) rotate(2deg);}
+  }
+  .mascot.happy{animation:happyjump .5s ease;}
+  @keyframes happyjump{
+    0%{transform:translateY(0) scale(1);}
+    30%{transform:translateY(-22px) scale(1.15) rotate(-8deg);}
+    60%{transform:translateY(-4px) scale(1.05) rotate(6deg);}
+    100%{transform:translateY(0) scale(1);}
+  }
+  .mascot.oops{animation:oopsshake .5s ease;}
+  @keyframes oopsshake{
+    0%,100%{transform:translateX(0) rotate(0);}
+    25%{transform:translateX(-6px) rotate(-6deg);}
+    75%{transform:translateX(6px) rotate(6deg);}
+  }
+
+  .streak-gauge{
+    display:flex;
+    gap:6px;
+    background:#fff;
+    padding:8px 12px;
+    border-radius:20px;
+    box-shadow:0 3px 0 #f0d9ea, 0 6px 14px rgba(150,90,150,.15);
+  }
+  .streak-gauge .heart{
+    font-size:22px;
+    opacity:.25;
+    transition:transform .25s ease, opacity .25s ease;
+  }
+  .streak-gauge .heart.on{
+    opacity:1;
+    transform:scale(1.2);
+  }
+
+  .sound-btn{
+    border:none;
+    background:#fff;
+    width:44px;height:44px;
+    border-radius:50%;
+    font-size:20px;
+    box-shadow:0 3px 0 #f0d9ea, 0 6px 14px rgba(150,90,150,.15);
+    cursor:pointer;
+  }
+
+  /* ===== 問題カード ===== */
+  .problem-card{
+    background:var(--card);
+    border-radius:28px;
+    padding:22px 16px 26px;
+    box-shadow:0 6px 0 #f0d3ea, 0 14px 30px rgba(150,90,150,.2);
+    position:relative;
+    overflow:hidden;
+  }
+  .problem-card::before{
+    content:"";
+    position:absolute; top:-40px; right:-40px;
+    width:120px;height:120px;border-radius:50%;
+    background:radial-gradient(circle, rgba(255,220,240,.9), transparent 70%);
+  }
+
+  .equation{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-bottom:18px;
+  }
+  .num-chip{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:6px;
+    padding:10px 14px;
+    border-radius:20px;
+    min-width:88px;
+  }
+  .num-chip .digit{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:44px;
+    line-height:1;
+    color:#fff;
+    text-shadow:0 2px 0 rgba(0,0,0,.12);
+  }
+  .num-chip .dots{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:4px;
+    max-width:80px;
+  }
+  .num-chip .dots i{
+    width:11px;height:11px;border-radius:50%;
+    background:rgba(255,255,255,.85);
+    display:inline-block;
+    box-shadow:0 1px 1px rgba(0,0,0,.15) inset;
+  }
+  .op{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:34px;
+    color:var(--ink-soft);
+  }
+  .q-chip{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-width:88px;
+    min-height:96px;
+    border-radius:20px;
+    background:repeating-linear-gradient(135deg,#f6e3f6,#f6e3f6 10px,#f0d6f2 10px,#f0d6f2 20px);
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:44px;
+    color:#fff;
+    text-shadow:0 2px 0 rgba(0,0,0,.12);
+  }
+
+  .choices{
+    display:flex;
+    justify-content:center;
+    gap:14px;
+    flex-wrap:wrap;
+  }
+  .choice-btn{
+    border:none;
+    cursor:pointer;
+    border-radius:22px;
+    padding:14px 10px 12px;
+    min-width:92px;
+    min-height:100px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:4px;
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:42px;
+    color:#fff;
+    text-shadow:0 2px 0 rgba(0,0,0,.12);
+    box-shadow:0 5px 0 rgba(0,0,0,.13), 0 10px 18px rgba(150,90,150,.18);
+    transition:transform .12s ease;
+  }
+  .choice-btn:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(0,0,0,.13);}
+  .choice-btn .label{
+    font-family:'Kiwi Maru',sans-serif;
+    font-size:12px;
+    font-weight:500;
+    color:rgba(255,255,255,.95);
+  }
+  .choice-btn.correct-flash{outline:5px solid #ffe066; animation:pulse .5s ease;}
+  .choice-btn.wrong-flash{filter:grayscale(.4) brightness(.85);}
+  @keyframes pulse{
+    0%{transform:scale(1);}
+    40%{transform:scale(1.12);}
+    100%{transform:scale(1);}
+  }
+
+  .feedback{
+    text-align:center;
+    min-height:30px;
+    margin-top:14px;
+    font-size:18px;
+    font-weight:500;
+  }
+  .feedback.good{color:#e0862a;}
+  .feedback.bad{color:#ff6fa5;}
+
+  /* ===== コレクション ===== */
+  .collection{
+    margin-top:22px;
+    background:#fff;
+    border-radius:24px;
+    padding:16px;
+    box-shadow:0 5px 0 #f0d9ea, 0 10px 20px rgba(150,90,150,.15);
+  }
+  .collection h2{
+    margin:2px 0 10px;
+    font-size:16px;
+    text-align:center;
+    color:var(--pink-deep);
+  }
+  .collection .count{
+    text-align:center;
+    font-size:12px;
+    color:var(--ink-soft);
+    margin-bottom:10px;
+  }
+  .item-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(64px,1fr));
+    gap:10px;
+  }
+  .item-slot{
+    position:relative;
+    aspect-ratio:1;
+    border-radius:16px;
+    background:linear-gradient(160deg,#fbeaf7,#f2e3ff);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .item-slot svg{width:70%;height:70%;}
+  .item-slot.locked svg{filter:grayscale(1) opacity(.28);}
+  .item-slot .badge{
+    position:absolute; bottom:2px; right:4px;
+    font-size:10px; background:var(--pink-deep); color:#fff;
+    border-radius:8px; padding:0 5px; font-weight:700;
+  }
+
+  /* ===== ごほうびモーダル ===== */
+  .modal-back{
+    position:fixed; inset:0; background:rgba(120,70,110,.45);
+    display:flex; align-items:center; justify-content:center;
+    z-index:20; padding:20px;
+    opacity:0; pointer-events:none; transition:opacity .25s ease;
+  }
+  .modal-back.show{opacity:1; pointer-events:auto;}
+  .modal{
+    background:#fffaff;
+    border-radius:28px;
+    padding:26px 22px 22px;
+    max-width:320px;
+    width:100%;
+    text-align:center;
+    box-shadow:0 20px 50px rgba(80,30,70,.35);
+    transform:scale(.7);
+    transition:transform .3s cubic-bezier(.34,1.56,.64,1);
+  }
+  .modal-back.show .modal{transform:scale(1);}
+  .modal h3{
+    color:var(--pink-deep);
+    font-size:20px;
+    margin:4px 0 14px;
+  }
+  .modal .item-icon{
+    width:120px;height:120px;
+    margin:0 auto 12px;
+    animation:spinin .6s ease;
+  }
+  @keyframes spinin{
+    0%{transform:scale(.3) rotate(-30deg); opacity:0;}
+    100%{transform:scale(1) rotate(0); opacity:1;}
+  }
+  .modal .item-name{
+    font-size:17px;
+    font-weight:700;
+    color:var(--ink);
+    margin-bottom:16px;
+  }
+  .modal button{
+    border:none;
+    background:linear-gradient(135deg,#ff9ecb,#ff6fa5);
+    color:#fff;
+    font-family:'Baloo 2',sans-serif;
+    font-weight:700;
+    font-size:16px;
+    padding:12px 28px;
+    border-radius:20px;
+    cursor:pointer;
+    box-shadow:0 4px 0 #d9457e;
+  }
+  .modal button:active{transform:translateY(3px); box-shadow:0 1px 0 #d9457e;}
+
+  /* 紙吹雪 */
+  .confetti-piece{
+    position:fixed;
+    top:-10px;
+    z-index:30;
+    pointer-events:none;
+    border-radius:2px;
+    animation:fall 2.4s linear forwards;
+  }
+  @keyframes fall{
+    to{transform:translateY(110vh) rotate(540deg); opacity:.2;}
+  }
+
+  footer{
+    text-align:center;
+    font-size:11px;
+    color:var(--ink-soft);
+    margin-top:26px;
+  }
+</style>
+</head>
+<body>
+
+<div class="sparkles" id="sparkles"></div>
+
+<div class="wrap">
+  <header>
+    <h1>👑 プリンセスたしざんランド 👑</h1>
+    <div class="sub">かずをたしてドレスアップ・アイテムをあつめよう！</div>
+  </header>
+
+  <div class="top-row">
+    <div class="mascot-box">
+      <span class="mascot" id="mascot">👸</span>
+      <div class="streak-gauge" id="streakGauge">
+        <span class="heart">💗</span>
+        <span class="heart">💗</span>
+        <span class="heart">💗</span>
+      </div>
+    </div>
+    <button class="sound-btn" id="soundBtn" title="おと ON/OFF">🔊</button>
+  </div>
+
+  <div class="problem-card">
+    <div class="equation" id="equation"></div>
+    <div class="choices" id="choices"></div>
+    <div class="feedback" id="feedback"></div>
+  </div>
+
+  <div class="collection">
+    <h2>✨ プリンセスの宝箱 ✨</h2>
+    <div class="count" id="collectCount">0/6 コンプリート</div>
+    <div class="item-grid" id="itemGrid"></div>
+  </div>
+
+  <footer>3もんれんぞくで せいかいすると ごほうびがもらえるよ 💫</footer>
+</div>
+
+<div class="modal-back" id="modalBack">
+  <div class="modal">
+    <h3>🎉 3もんれんぞく せいかい！ 🎉</h3>
+    <svg class="item-icon" id="modalIcon" viewBox="0 0 100 100"></svg>
+    <div class="item-name" id="modalName"></div>
+    <button id="modalClose">やったー！</button>
+  </div>
+</div>
+
+<!-- アイテムSVGシンボル定義 -->
+<svg style="display:none">
+  <symbol id="ic-necklace" viewBox="0 0 100 100">
+    <path d="M20,22 Q50,68 80,22" fill="none" stroke="#f4c14e" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="20" cy="22" r="5" fill="#f4c14e"/>
+    <circle cx="80" cy="22" r="5" fill="#f4c14e"/>
+    <polygon points="50,58 62,72 50,88 38,72" fill="#7fd8ff" stroke="#4fc3f7" stroke-width="2"/>
+    <polygon points="50,58 62,72 50,72" fill="#c9f2ff"/>
+  </symbol>
+  <symbol id="ic-ring" viewBox="0 0 100 100">
+    <circle cx="50" cy="62" r="24" fill="none" stroke="#f4c14e" stroke-width="9"/>
+    <polygon points="50,20 62,36 50,48 38,36" fill="#ff8fd8" stroke="#ff6fa5" stroke-width="2"/>
+    <polygon points="50,20 62,36 50,36" fill="#ffd6f0"/>
+  </symbol>
+  <symbol id="ic-tiara" viewBox="0 0 100 100">
+    <path d="M15,70 L15,55 L32,68 L50,30 L68,68 L85,55 L85,70 Z" fill="#f4c14e" stroke="#e0a92e" stroke-width="2"/>
+    <circle cx="50" cy="32" r="7" fill="#ff8fd8"/>
+    <circle cx="27" cy="60" r="5" fill="#7fd8ff"/>
+    <circle cx="73" cy="60" r="5" fill="#7fd8ff"/>
+    <rect x="14" y="70" width="72" height="8" rx="3" fill="#f4c14e"/>
+  </symbol>
+  <symbol id="ic-wand" viewBox="0 0 100 100">
+    <line x1="25" y1="85" x2="65" y2="45" stroke="#e0a92e" stroke-width="7" stroke-linecap="round"/>
+    <g transform="translate(70,32)">
+      <polygon points="0,-18 5,-5 18,0 5,5 0,18 -5,5 -18,0 -5,-5" fill="#ffe066" stroke="#f4c14e" stroke-width="2"/>
+    </g>
+    <circle cx="30" cy="80" r="3" fill="#ff8fd8"/>
+  </symbol>
+  <symbol id="ic-ribbon" viewBox="0 0 100 100">
+    <polygon points="50,50 15,25 15,75" fill="#ff8fd8" stroke="#ff6fa5" stroke-width="2"/>
+    <polygon points="50,50 85,25 85,75" fill="#ff8fd8" stroke="#ff6fa5" stroke-width="2"/>
+    <circle cx="50" cy="50" r="9" fill="#ffd6f0" stroke="#ff6fa5" stroke-width="2"/>
+  </symbol>
+  <symbol id="ic-shoes" viewBox="0 0 100 100">
+    <path d="M22,74 L22,46 Q22,40 29,40 Q40,40 47,45 Q66,58 86,63 Q93,65 91,72
+             Q89,78 80,78 L26,78 Q22,78 22,74 Z"
+          fill="#bfeaff" stroke="#4fc3f7" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M22,70 L91,70 Q92,78 82,79 L26,79 Q21,79 22,70 Z" fill="#eaf9ff" stroke="#4fc3f7" stroke-width="2"/>
+    <circle cx="42" cy="49" r="4" fill="#fff"/>
+    <circle cx="42" cy="49" r="4" fill="none" stroke="#7fd8ff" stroke-width="1.5"/>
+  </symbol>
+</svg>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- 数字と色の対応表 ---------- */
+  const NUM_COLORS = {
+    1:{name:"あか",    hex:"#ff6b7a"},
+    2:{name:"あお",    hex:"#4da6ff"},
+    3:{name:"オレンジ", hex:"#ffa13d"},
+    4:{name:"むらさき", hex:"#b37bff"},
+    5:{name:"ピンク",  hex:"#ff7fc4"},
+    6:{name:"きいろ",  hex:"#ffd23d"},
+    7:{name:"みどり",  hex:"#57c98a"},
+    8:{name:"みずいろ", hex:"#4dd9e8"},
+    9:{name:"きんいろ", hex:"#caa23d"},
+    10:{name:"にじいろ", hex:"linear-gradient(135deg,#ff6b7a,#ffd23d,#57c98a,#4da6ff,#b37bff)"}
+  };
+
+  function chipBg(n){
+    const c = NUM_COLORS[n];
+    return c.hex.startsWith("linear") ? c.hex : c.hex;
+  }
+
+  /* ---------- ごほうびアイテム ---------- */
+  const ITEMS = [
+    {id:"necklace", name:"きらきらネックレス", icon:"ic-necklace"},
+    {id:"ring",     name:"ほうせきの ゆびわ",   icon:"ic-ring"},
+    {id:"tiara",    name:"おひめさまの ティアラ", icon:"ic-tiara"},
+    {id:"wand",     name:"まほうの つえ",       icon:"ic-wand"},
+    {id:"ribbon",   name:"かわいい リボン",     icon:"ic-ribbon"},
+    {id:"shoes",    name:"ガラスの くつ",       icon:"ic-shoes"}
+  ];
+
+  /* ---------- 状態管理 ---------- */
+  const SAVE_KEY = "princess-math-game-v1";
+  let state = loadState();
+
+  function loadState(){
+    try{
+      const raw = localStorage.getItem(SAVE_KEY);
+      if(raw) return JSON.parse(raw);
+    }catch(e){}
+    return {streak:0, collected:[], muted:false};
+  }
+  function saveState(){
+    try{ localStorage.setItem(SAVE_KEY, JSON.stringify(state)); }catch(e){}
+  }
+
+  /* ---------- サウンド ---------- */
+  let audioCtx = null;
+  function beep(freqs, dur){
+    if(state.muted) return;
+    try{
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      const now = audioCtx.currentTime;
+      freqs.forEach((f,i)=>{
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "sine";
+        osc.frequency.value = f;
+        gain.gain.setValueAtTime(0.0001, now + i*0.12);
+        gain.gain.linearRampToValueAtTime(0.18, now + i*0.12 + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + i*0.12 + dur);
+        osc.connect(gain).connect(audioCtx.destination);
+        osc.start(now + i*0.12);
+        osc.stop(now + i*0.12 + dur + 0.05);
+      });
+    }catch(e){}
+  }
+  function playCorrect(){ beep([523.25,659.25,783.99], 0.35); }
+  function playWrong(){ beep([300,220], 0.3); }
+  function playReward(){ beep([659.25,783.99,987.77,1174.66], 0.45); }
+
+  /* ---------- 背景のきらきら生成 ---------- */
+  (function makeSparkles(){
+    const el = document.getElementById("sparkles");
+    const glyphs = ["✨","⭐","💗","🌸","👑"];
+    for(let i=0;i<16;i++){
+      const s = document.createElement("span");
+      s.textContent = glyphs[i % glyphs.length];
+      s.style.left = Math.random()*100 + "vw";
+      s.style.animationDelay = (Math.random()*9) + "s";
+      s.style.animationDuration = (7+Math.random()*6) + "s";
+      s.style.fontSize = (14+Math.random()*16) + "px";
+      el.appendChild(s);
+    }
+  })();
+
+  /* ---------- 問題生成 ---------- */
+  let current = null;
+
+  function maxAddendForLevel(){
+    // コレクションが増えるほど少しずつ数字の範囲が広がる
+    return Math.min(6, 2 + Math.floor(state.collected.length/2));
+  }
+
+  function genProblem(){
+    const maxA = maxAddendForLevel();
+    let a,b,sum;
+    do{
+      a = 1 + Math.floor(Math.random()*maxA);
+      b = 1 + Math.floor(Math.random()*maxA);
+      sum = a+b;
+    }while(sum>10);
+
+    const choices = new Set([sum]);
+    while(choices.size < 3){
+      const delta = [-2,-1,1,2][Math.floor(Math.random()*4)];
+      const cand = sum + delta;
+      if(cand>=1 && cand<=10) choices.add(cand);
+    }
+    const choiceArr = shuffle(Array.from(choices));
+    current = {a,b,sum,choiceArr};
+  }
+
+  function shuffle(arr){
+    for(let i=arr.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [arr[i],arr[j]] = [arr[j],arr[i]];
+    }
+    return arr;
+  }
+
+  function dotsHtml(n){
+    let h = "";
+    for(let i=0;i<n;i++) h += "<i></i>";
+    return h;
+  }
+
+  function renderProblem(){
+    const eq = document.getElementById("equation");
+    const {a,b} = current;
+    eq.innerHTML = `
+      <div class="num-chip" style="background:${chipBg(a)}">
+        <div class="digit">${a}</div>
+        <div class="dots">${dotsHtml(a)}</div>
+      </div>
+      <div class="op">＋</div>
+      <div class="num-chip" style="background:${chipBg(b)}">
+        <div class="digit">${b}</div>
+        <div class="dots">${dotsHtml(b)}</div>
+      </div>
+      <div class="op">＝</div>
+      <div class="q-chip">？</div>
+    `;
+
+    const ch = document.getElementById("choices");
+    ch.innerHTML = "";
+    current.choiceArr.forEach(v=>{
+      const btn = document.createElement("button");
+      btn.className = "choice-btn";
+      btn.style.background = chipBg(v);
+      btn.innerHTML = `${v}<span class="label">${NUM_COLORS[v] ? NUM_COLORS[v].name : ""}</span>`;
+      btn.addEventListener("click", ()=>onAnswer(v, btn));
+      ch.appendChild(btn);
+    });
+
+    document.getElementById("feedback").textContent = "";
+    document.getElementById("feedback").className = "feedback";
+  }
+
+  /* ---------- 回答処理 ---------- */
+  function onAnswer(value, btn){
+    document.querySelectorAll(".choice-btn").forEach(b=>b.disabled = true);
+    const mascot = document.getElementById("mascot");
+    const fb = document.getElementById("feedback");
+
+    if(value === current.sum){
+      btn.classList.add("correct-flash");
+      fb.textContent = "せいかい！すごいね💖";
+      fb.className = "feedback good";
+      mascot.className = "mascot happy";
+      playCorrect();
+      launchConfetti();
+      state.streak++;
+      updateStreakGauge();
+      saveState();
+
+      if(state.streak >= 3){
+        state.streak = 0;
+        saveState();
+        setTimeout(()=>{ updateStreakGauge(); awardItem(); }, 550);
+      } else {
+        setTimeout(nextProblem, 1100);
+      }
+    }else{
+      btn.classList.add("wrong-flash");
+      document.querySelectorAll(".choice-btn").forEach(b=>{
+        if(parseInt(b.textContent) === current.sum) b.classList.add("correct-flash");
+      });
+      fb.textContent = `おしい！こたえは ${current.sum} だよ。もういっかい！`;
+      fb.className = "feedback bad";
+      mascot.className = "mascot oops";
+      playWrong();
+      state.streak = 0;
+      updateStreakGauge();
+      saveState();
+      setTimeout(nextProblem, 1500);
+    }
+  }
+
+  function nextProblem(){
+    document.getElementById("mascot").className = "mascot";
+    genProblem();
+    renderProblem();
+  }
+
+  function updateStreakGauge(){
+    const hearts = document.querySelectorAll("#streakGauge .heart");
+    hearts.forEach((h,i)=>{
+      h.classList.toggle("on", i < state.streak);
+    });
+  }
+
+  /* ---------- ごほうび ---------- */
+  function pickItem(){
+    const counts = {};
+    ITEMS.forEach(it=>counts[it.id]=0);
+    state.collected.forEach(id=>counts[id] = (counts[id]||0)+1);
+    const uncollected = ITEMS.filter(it=>counts[it.id]===0);
+    const pool = uncollected.length ? uncollected : ITEMS;
+    return pool[Math.floor(Math.random()*pool.length)];
+  }
+
+  function awardItem(){
+    const item = pickItem();
+    state.collected.push(item.id);
+    saveState();
+    renderCollection();
+
+    const back = document.getElementById("modalBack");
+    const icon = document.getElementById("modalIcon");
+    icon.innerHTML = `<use href="#${item.icon}"></use>`;
+    document.getElementById("modalName").textContent = item.name + " を てにいれた！";
+    back.classList.add("show");
+    playReward();
+    launchConfetti(60);
+  }
+
+  document.getElementById("modalClose").addEventListener("click", ()=>{
+    document.getElementById("modalBack").classList.remove("show");
+    nextProblem();
+  });
+
+  function renderCollection(){
+    const grid = document.getElementById("itemGrid");
+    grid.innerHTML = "";
+    const counts = {};
+    state.collected.forEach(id=>counts[id]=(counts[id]||0)+1);
+    let collectedTypes = 0;
+
+    ITEMS.forEach(it=>{
+      const has = counts[it.id] > 0;
+      if(has) collectedTypes++;
+      const slot = document.createElement("div");
+      slot.className = "item-slot" + (has ? "" : " locked");
+      slot.innerHTML = `<svg><use href="#${it.icon}"></use></svg>`;
+      if(has && counts[it.id] > 1){
+        const b = document.createElement("span");
+        b.className = "badge";
+        b.textContent = "×" + counts[it.id];
+        slot.appendChild(b);
+      }
+      grid.appendChild(slot);
+    });
+
+    document.getElementById("collectCount").textContent =
+      `${collectedTypes}/${ITEMS.length} コンプリート（あつめた かず：${state.collected.length}）`;
+  }
+
+  /* ---------- 紙吹雪演出 ---------- */
+  function launchConfetti(n){
+    n = n || 26;
+    const colors = Object.values(NUM_COLORS).map(c=>c.hex).filter(h=>!h.startsWith("linear"));
+    for(let i=0;i<n;i++){
+      const p = document.createElement("div");
+      p.className = "confetti-piece";
+      const size = 6 + Math.random()*6;
+      p.style.width = size+"px";
+      p.style.height = (size*1.4)+"px";
+      p.style.left = Math.random()*100 + "vw";
+      p.style.background = colors[Math.floor(Math.random()*colors.length)];
+      p.style.animationDuration = (1.6 + Math.random()*1.4) + "s";
+      p.style.animationDelay = (Math.random()*0.3) + "s";
+      document.body.appendChild(p);
+      setTimeout(()=>p.remove(), 3200);
+    }
+  }
+
+  /* ---------- サウンドボタン ---------- */
+  const soundBtn = document.getElementById("soundBtn");
+  function refreshSoundBtn(){
+    soundBtn.textContent = state.muted ? "🔇" : "🔊";
+  }
+  soundBtn.addEventListener("click", ()=>{
+    state.muted = !state.muted;
+    saveState();
+    refreshSoundBtn();
+  });
+
+  /* ---------- 初期化 ---------- */
+  refreshSoundBtn();
+  updateStreakGauge();
+  renderCollection();
+  nextProblem();
+
+})();
+</script>
+</body>
+</html>
