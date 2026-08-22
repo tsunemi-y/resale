@@ -148,6 +148,124 @@
     box-shadow:0 3px 0 #f0d9ea, 0 6px 14px rgba(150,90,150,.15);
     cursor:pointer;
   }
+  .switch-btn{
+    border:none;
+    background:#fff;
+    width:36px;height:36px;
+    border-radius:50%;
+    font-size:16px;
+    box-shadow:0 3px 0 #f0d9ea, 0 6px 14px rgba(150,90,150,.15);
+    cursor:pointer;
+  }
+
+  /* ===== タイトル（プレイヤー選択）画面 ===== */
+  .title-screen{
+    position:fixed;
+    inset:0;
+    z-index:50;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    background:
+      radial-gradient(circle at 15% 20%, #fff 0%, transparent 2%),
+      radial-gradient(circle at 80% 10%, #fff 0%, transparent 2%),
+      radial-gradient(circle at 60% 70%, #fff 0%, transparent 2%),
+      linear-gradient(160deg, var(--bg1), var(--bg2) 55%, var(--bg3));
+  }
+  .title-screen.hidden{display:none;}
+  .title-card{
+    background:#fffaff;
+    border-radius:28px;
+    padding:34px 24px;
+    text-align:center;
+    max-width:360px;
+    width:100%;
+    box-shadow:0 10px 0 #f0d3ea, 0 20px 40px rgba(150,90,150,.25);
+  }
+  .title-heading{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:24px;
+    color:var(--pink-deep);
+    margin:0 0 26px;
+  }
+  .player-picker{
+    display:flex;
+    gap:16px;
+    justify-content:center;
+  }
+  .player-card{
+    flex:1;
+    border:none;
+    border-radius:22px;
+    padding:22px 10px;
+    background:linear-gradient(160deg,#fff0f8,#f3e6fb);
+    cursor:pointer;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:10px;
+    box-shadow:0 4px 0 #e8cfe0, 0 8px 16px rgba(150,90,150,.15);
+    transition:transform .12s ease;
+  }
+  .player-card:active{transform:translateY(3px); box-shadow:0 1px 0 #e8cfe0;}
+  .player-emoji{font-size:54px;}
+  .player-name{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:18px;
+    color:var(--ink);
+  }
+
+  /* なおやモードでは数字とプリンセスの対応図鑑は非表示 */
+  body[data-player="naoya"] .legend{display:none;}
+
+  /* ===== なおやモード：自由入力の計算 ===== */
+  .naoya-num{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:clamp(32px,8vw,44px);
+    color:var(--pink-deep);
+    background:#fff0f8;
+    padding:10px 16px;
+    border-radius:16px;
+    box-shadow:0 3px 0 #f0d3ea;
+  }
+  .naoya-input-wrap{display:flex;}
+  .naoya-input{
+    width:130px;
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:36px;
+    text-align:center;
+    border:3px solid #e3b8d8;
+    border-radius:16px;
+    padding:8px 6px;
+    color:var(--ink);
+    background:#fff;
+    outline:none;
+  }
+  .naoya-input:focus{border-color:var(--pink-deep);}
+  .naoya-input.naoya-correct{border-color:#57c98a; background:#eafff2; animation:qCorrectPulse .6s ease;}
+  .naoya-input.naoya-wrong{border-color:#ff6b7a; background:#fff0f0; animation:qShake .5s ease;}
+  .naoya-input::-webkit-outer-spin-button,
+  .naoya-input::-webkit-inner-spin-button{-webkit-appearance:none; margin:0;}
+  .naoya-input[type=number]{-moz-appearance:textfield;}
+  .naoya-submit-btn{
+    border:none;
+    background:linear-gradient(135deg,#ff9ecb,#ff6fa5);
+    color:#fff;
+    font-family:'Baloo 2',sans-serif;
+    font-weight:700;
+    font-size:20px;
+    padding:14px 32px;
+    border-radius:20px;
+    cursor:pointer;
+    box-shadow:0 4px 0 #d9457e;
+  }
+  .naoya-submit-btn:active{transform:translateY(3px); box-shadow:0 1px 0 #d9457e;}
+  .naoya-submit-btn:disabled{opacity:.6; cursor:default;}
 
   /* ===== 問題カード ===== */
   .problem-card{
@@ -566,15 +684,32 @@
 
 <div class="sparkles" id="sparkles"></div>
 
-<div class="wrap">
+<div class="title-screen" id="titleScreen">
+  <div class="title-card">
+    <h1 class="title-heading">だれが あそぶ？</h1>
+    <div class="player-picker">
+      <button class="player-card" data-player="anna">
+        <span class="player-emoji">👸</span>
+        <span class="player-name">あんな</span>
+      </button>
+      <button class="player-card" data-player="naoya">
+        <span class="player-emoji">🤴</span>
+        <span class="player-name">なおや</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap" id="mainWrap">
   <header>
-    <h1>👑 プリンセスたしざんランド 👑</h1>
-    <div class="sub">かずをたしてドレスアップ・アイテムをあつめよう！</div>
+    <h1 id="mainTitle">👑 プリンセスたしざんランド 👑</h1>
+    <div class="sub" id="mainSub">かずをたしてドレスアップ・アイテムをあつめよう！</div>
   </header>
 
   <div class="top-row">
     <div class="mascot-box">
       <span class="mascot" id="mascot">👸</span>
+      <button class="switch-btn" id="switchPlayerBtn" title="プレイヤーをかえる">🔁</button>
       <div class="streak-gauge" id="streakGauge">
         <span class="heart">💗</span>
         <span class="heart">💗</span>
@@ -1164,6 +1299,7 @@
     if(typeof s.streak !== "number") s.streak = 0;
     if(typeof s.muted !== "boolean") s.muted = false;
     if(!s.equipped || typeof s.equipped !== "object") s.equipped = {};
+    if(s.player !== "anna" && s.player !== "naoya") s.player = null;
     return s;
   }
   function saveState(){
@@ -1219,6 +1355,25 @@
   }
 
   function genProblem(){
+    if(state.player === "naoya"){
+      let a,b,sum,opSymbol;
+      if(Math.random() < 0.5){
+        // 二桁の掛け算
+        a = 10 + Math.floor(Math.random()*90);
+        b = 2 + Math.floor(Math.random()*8);
+        sum = a*b;
+        opSymbol = "×";
+      }else{
+        // 三桁の足し算
+        a = 100 + Math.floor(Math.random()*900);
+        b = 100 + Math.floor(Math.random()*900);
+        sum = a+b;
+        opSymbol = "＋";
+      }
+      current = {a,b,sum,opSymbol,mode:"naoya"};
+      return;
+    }
+
     const maxA = maxAddendForLevel();
     let a,b,sum;
     do{
@@ -1234,7 +1389,7 @@
       if(cand>=1 && cand<=10) choices.add(cand);
     }
     const choiceArr = shuffle(Array.from(choices));
-    current = {a,b,sum,choiceArr};
+    current = {a,b,sum,choiceArr,mode:"anna"};
   }
 
   function shuffle(arr){
@@ -1268,6 +1423,29 @@
 
   function renderProblem(){
     const eq = document.getElementById("equation");
+    const ch = document.getElementById("choices");
+    document.getElementById("feedback").textContent = "";
+    document.getElementById("feedback").className = "feedback";
+
+    if(current.mode === "naoya"){
+      const {a,b,opSymbol} = current;
+      eq.innerHTML = `
+        <div class="naoya-num">${a}</div>
+        <div class="op">${opSymbol}</div>
+        <div class="naoya-num">${b}</div>
+        <div class="op">＝</div>
+        <div class="naoya-input-wrap">
+          <input type="number" inputmode="numeric" id="naoyaInput" class="naoya-input" placeholder="？" autocomplete="off">
+        </div>
+      `;
+      ch.innerHTML = `<button class="naoya-submit-btn" id="naoyaSubmit">こたえる ➜</button>`;
+      const input = document.getElementById("naoyaInput");
+      document.getElementById("naoyaSubmit").addEventListener("click", onNaoyaSubmit);
+      input.addEventListener("keydown", e=>{ if(e.key === "Enter") onNaoyaSubmit(); });
+      setTimeout(()=>input.focus(), 50);
+      return;
+    }
+
     const {a,b} = current;
     eq.innerHTML = `
       ${numChipHtml(a)}
@@ -1277,7 +1455,6 @@
       <div class="q-chip" id="qChip">？</div>
     `;
 
-    const ch = document.getElementById("choices");
     ch.innerHTML = "";
     current.choiceArr.forEach(v=>{
       const p = PRINCESSES[v];
@@ -1293,12 +1470,36 @@
       btn.addEventListener("click", ()=>onAnswer(v, btn));
       ch.appendChild(btn);
     });
-
-    document.getElementById("feedback").textContent = "";
-    document.getElementById("feedback").className = "feedback";
   }
 
-  /* ---------- 回答処理 ---------- */
+  /* ---------- 回答処理（共通のせいかい/おしい処理） ---------- */
+  function markCorrect(){
+    const mascot = document.getElementById("mascot");
+    mascot.className = "mascot happy";
+    playCorrect();
+    launchConfetti();
+    state.streak++;
+    updateStreakGauge();
+    saveState();
+
+    if(state.streak >= 3){
+      state.streak = 0;
+      saveState();
+      setTimeout(()=>{ updateStreakGauge(); awardItem(); }, 550);
+      return true;
+    }
+    return false;
+  }
+
+  function markWrong(){
+    const mascot = document.getElementById("mascot");
+    mascot.className = "mascot oops";
+    playWrong();
+    state.streak = 0;
+    updateStreakGauge();
+    saveState();
+  }
+
   function fillQChip(value){
     const qChip = document.getElementById("qChip");
     qChip.classList.remove("q-pop","q-correct","q-wrong","q-reveal");
@@ -1312,7 +1513,6 @@
 
   function onAnswer(value, btn){
     document.querySelectorAll(".choice-btn").forEach(b=>b.disabled = true);
-    const mascot = document.getElementById("mascot");
     const fb = document.getElementById("feedback");
     const qChip = fillQChip(value);
 
@@ -1321,20 +1521,8 @@
       qChip.classList.add("q-correct");
       fb.textContent = "せいかい！すごいね💖";
       fb.className = "feedback good";
-      mascot.className = "mascot happy";
-      playCorrect();
-      launchConfetti();
-      state.streak++;
-      updateStreakGauge();
-      saveState();
-
-      if(state.streak >= 3){
-        state.streak = 0;
-        saveState();
-        setTimeout(()=>{ updateStreakGauge(); awardItem(); }, 550);
-      } else {
-        setTimeout(nextProblem, 1100);
-      }
+      const rewarded = markCorrect();
+      if(!rewarded) setTimeout(nextProblem, 1100);
     }else{
       btn.classList.add("wrong-flash");
       document.querySelectorAll(".choice-btn").forEach(b=>{
@@ -1343,11 +1531,7 @@
       qChip.classList.add("q-wrong");
       fb.textContent = `おしい！こたえは ${current.sum} だよ。もういっかい！`;
       fb.className = "feedback bad";
-      mascot.className = "mascot oops";
-      playWrong();
-      state.streak = 0;
-      updateStreakGauge();
-      saveState();
+      markWrong();
 
       setTimeout(()=>{
         qChip.classList.remove("q-wrong");
@@ -1355,6 +1539,30 @@
         qChip.innerHTML = `<span class="qdigit">${current.sum}</span>`;
         qChip.classList.add("q-reveal");
       }, 700);
+      setTimeout(nextProblem, 1900);
+    }
+  }
+
+  function onNaoyaSubmit(){
+    const input = document.getElementById("naoyaInput");
+    const submitBtn = document.getElementById("naoyaSubmit");
+    if(!input || input.value.trim() === "") return;
+    const value = parseInt(input.value, 10);
+    const fb = document.getElementById("feedback");
+    input.disabled = true;
+    submitBtn.disabled = true;
+
+    if(value === current.sum){
+      input.classList.add("naoya-correct");
+      fb.textContent = "せいかい！すごい！💯";
+      fb.className = "feedback good";
+      const rewarded = markCorrect();
+      if(!rewarded) setTimeout(nextProblem, 1300);
+    }else{
+      input.classList.add("naoya-wrong");
+      fb.textContent = `おしい！こたえは ${current.sum} だよ。もういっかい！`;
+      fb.className = "feedback bad";
+      markWrong();
       setTimeout(nextProblem, 1900);
     }
   }
@@ -1528,13 +1736,63 @@
     refreshSoundBtn();
   });
 
+  /* ---------- プレイヤー選択 ---------- */
+  const PLAYER_CONFIG = {
+    anna: {
+      title: "👑 プリンセスたしざんランド 👑",
+      sub: "かずをたしてドレスアップ・アイテムをあつめよう！",
+      mascot: "👸"
+    },
+    naoya: {
+      title: "🧮 なおやさんすうチャレンジ 🧮",
+      sub: "かけ算・たし算にちょうせんしてアイテムをあつめよう！",
+      mascot: "🤴"
+    }
+  };
+
+  function applyPlayerTheme(player){
+    const cfg = PLAYER_CONFIG[player];
+    document.getElementById("mainTitle").textContent = cfg.title;
+    document.getElementById("mainSub").textContent = cfg.sub;
+    document.getElementById("mascot").textContent = cfg.mascot;
+    document.body.dataset.player = player;
+  }
+
+  function startGame(player){
+    state.player = player;
+    saveState();
+    applyPlayerTheme(player);
+    document.getElementById("titleScreen").classList.add("hidden");
+    document.getElementById("mainWrap").style.display = "";
+    renderAvatar();
+    renderCollection();
+    renderLegend();
+    nextProblem();
+  }
+
+  document.querySelectorAll(".player-card").forEach(btn=>{
+    btn.addEventListener("click", ()=> startGame(btn.dataset.player));
+  });
+
+  document.getElementById("switchPlayerBtn").addEventListener("click", ()=>{
+    document.getElementById("titleScreen").classList.remove("hidden");
+    document.getElementById("mainWrap").style.display = "none";
+  });
+
   /* ---------- 初期化 ---------- */
   refreshSoundBtn();
   updateStreakGauge();
-  renderAvatar();
-  renderCollection();
-  renderLegend();
-  nextProblem();
+  if(state.player){
+    document.getElementById("mainWrap").style.display = "";
+    document.getElementById("titleScreen").classList.add("hidden");
+    applyPlayerTheme(state.player);
+    renderAvatar();
+    renderCollection();
+    renderLegend();
+    nextProblem();
+  }else{
+    document.getElementById("mainWrap").style.display = "none";
+  }
 
 })();
 </script>
