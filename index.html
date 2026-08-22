@@ -363,25 +363,18 @@
   }
   .avatar-slot{
     position:absolute;
-    width:13%;
+    width:15%;
     aspect-ratio:1;
-    max-width:36px;
+    max-width:40px;
     transform:translate(-50%,-50%);
     border-radius:50%;
-    background:rgba(255,255,255,.7);
-    border:2px dashed #e3b8d8;
+    background:transparent;
+    border:none;
     cursor:pointer;
-    transition:transform .15s ease;
     z-index:2;
   }
-  .avatar-slot svg{width:100%;height:100%;}
-  .avatar-slot.filled{
-    border-style:solid;
-    border-color:#ffe066;
-    background:#fff;
-    box-shadow:0 3px 8px rgba(150,90,150,.3), 0 0 0 3px rgba(255,224,102,.35);
-  }
-  .avatar-slot:active{transform:translate(-50%,-50%) scale(.9);}
+  .avatar-slot:active{transform:translate(-50%,-50%) scale(.94);}
+  .worn-item{transition:opacity .2s ease;}
   .dressup-hint{
     text-align:center;
     font-size:12px;
@@ -607,7 +600,7 @@
             <stop offset="100%" stop-color="#ffdcb6"/>
           </radialGradient>
           <linearGradient id="dollHair" x1="10%" y1="0%" x2="90%" y2="100%">
-            <stop offset="0%" stop-color="#d29a5c"/>
+            <stop offset="0%" stop-color="#e0ab72"/>
             <stop offset="55%" stop-color="#af7736"/>
             <stop offset="100%" stop-color="#8f5b24"/>
           </linearGradient>
@@ -617,91 +610,112 @@
             <stop offset="100%" stop-color="#ff9fcc"/>
           </linearGradient>
           <radialGradient id="dollCheek" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stop-color="#ff93ab" stop-opacity=".6"/>
-            <stop offset="100%" stop-color="#ff93ab" stop-opacity="0"/>
+            <stop offset="0%" stop-color="#ff8aa4" stop-opacity=".65"/>
+            <stop offset="100%" stop-color="#ff8aa4" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="dollIris" cx="32%" cy="28%" r="80%">
+            <stop offset="0%" stop-color="#d1a878"/>
+            <stop offset="55%" stop-color="#8a5a3a"/>
+            <stop offset="100%" stop-color="#5a3a26"/>
           </radialGradient>
         </defs>
 
-        <ellipse cx="120" cy="365" rx="52" ry="9" fill="rgba(120,70,110,.16)"/>
+        <ellipse cx="120" cy="365" rx="54" ry="9" fill="rgba(120,70,110,.16)"/>
 
-        <path d="M52,98 Q36,36 120,24 Q204,36 188,98
-                 Q206,150 196,235 Q178,195 168,145 Q160,110 120,98
-                 Q80,110 72,145 Q62,195 44,235 Q34,150 52,98 Z" fill="url(#dollHair)"/>
+        <path d="M50,100 Q34,36 120,24 Q206,36 190,100
+                 Q210,152 198,235 Q180,196 170,146 Q162,110 120,98
+                 Q78,110 70,146 Q60,196 42,235 Q30,152 50,100 Z" fill="url(#dollHair)"/>
 
-        <rect x="99" y="334" width="17" height="34" rx="8" fill="url(#dollSkin)"/>
-        <rect x="124" y="334" width="17" height="34" rx="8" fill="url(#dollSkin)"/>
-        <ellipse cx="107" cy="369" rx="15" ry="7" fill="#fff0f7" stroke="#ff9fcc" stroke-width="2"/>
-        <ellipse cx="133" cy="369" rx="15" ry="7" fill="#fff0f7" stroke="#ff9fcc" stroke-width="2"/>
+        <rect x="99" y="330" width="17" height="36" rx="8" fill="url(#dollSkin)"/>
+        <rect x="124" y="330" width="17" height="36" rx="8" fill="url(#dollSkin)"/>
+        <g id="worn-shoes-default">
+          <ellipse cx="107" cy="368" rx="15" ry="7" fill="#fff0f7" stroke="#ff9fcc" stroke-width="2"/>
+          <ellipse cx="133" cy="368" rx="15" ry="7" fill="#fff0f7" stroke="#ff9fcc" stroke-width="2"/>
+        </g>
 
         <path d="M80,160 Q52,182 47,224 Q46,236 57,239 Q68,236 65,223 Q69,186 96,168 Z" fill="url(#dollSkin)"/>
         <path d="M160,160 Q188,182 193,224 Q194,236 183,239 Q172,236 175,223 Q171,186 144,168 Z" fill="url(#dollSkin)"/>
 
-        <path d="M92,205 Q120,190 148,205 L184,312
-                 Q174,326 162,312 Q154,326 142,312 Q134,326 122,312
-                 Q114,326 106,312 Q98,326 86,312 Q78,326 66,312
-                 Q58,326 48,312 Z" fill="url(#dollDress)"/>
-        <path d="M120,205 L112,314" stroke="#ffbcdc" stroke-width="2.5" opacity=".55" fill="none"/>
-        <path d="M120,205 L129,314" stroke="#ffbcdc" stroke-width="2.5" opacity=".55" fill="none"/>
-        <path d="M104,207 L84,300" stroke="#ffcfe6" stroke-width="2" opacity=".45" fill="none"/>
-        <path d="M136,207 L157,300" stroke="#ffcfe6" stroke-width="2" opacity=".45" fill="none"/>
+        <path d="M90,206 Q120,192 150,206 L192,314
+                 Q180,328 168,314 Q160,328 148,314 Q140,328 130,314
+                 Q120,328 110,314 Q100,328 90,314 Q80,328 70,314
+                 Q60,328 48,314 Z" fill="url(#dollDress)"/>
+        <path d="M69,262 Q84,272 99,262 Q114,272 129,262 Q144,272 159,262 Q166,266 171,264" stroke="#fff" stroke-width="2" opacity=".4" fill="none"/>
+        <path d="M120,206 L111,316" stroke="#ffbcdc" stroke-width="2.5" opacity=".55" fill="none"/>
+        <path d="M120,206 L130,316" stroke="#ffbcdc" stroke-width="2.5" opacity=".55" fill="none"/>
+        <path d="M102,208 L80,302" stroke="#ffcfe6" stroke-width="2" opacity=".45" fill="none"/>
+        <path d="M138,208 L161,302" stroke="#ffcfe6" stroke-width="2" opacity=".45" fill="none"/>
 
-        <path d="M80,150 Q120,138 160,150 L150,208 Q120,197 90,208 Z" fill="url(#dollDress)"/>
+        <path d="M80,150 Q120,138 160,150 L150,209 Q120,198 90,209 Z" fill="url(#dollDress)"/>
         <path d="M100,151 Q120,165 140,151" stroke="#fff" stroke-width="3" fill="none" opacity=".85"/>
+        <g id="worn-ribbon"></g>
+        <g id="worn-brooch"></g>
+        <g id="worn-necklace"></g>
 
         <rect x="107" y="126" width="26" height="28" rx="9" fill="url(#dollSkin)"/>
 
-        <ellipse cx="120" cy="88" rx="47" ry="51" fill="url(#dollSkin)"/>
-        <ellipse cx="71" cy="92" rx="6" ry="9" fill="url(#dollSkin)"/>
-        <ellipse cx="169" cy="92" rx="6" ry="9" fill="url(#dollSkin)"/>
+        <ellipse cx="120" cy="88" rx="49" ry="53" fill="url(#dollSkin)"/>
+        <ellipse cx="70" cy="92" rx="6" ry="9" fill="url(#dollSkin)"/>
+        <ellipse cx="170" cy="92" rx="6" ry="9" fill="url(#dollSkin)"/>
 
-        <ellipse cx="89" cy="103" rx="15" ry="10" fill="url(#dollCheek)"/>
-        <ellipse cx="151" cy="103" rx="15" ry="10" fill="url(#dollCheek)"/>
+        <ellipse cx="85" cy="105" rx="17" ry="11" fill="url(#dollCheek)"/>
+        <ellipse cx="155" cy="105" rx="17" ry="11" fill="url(#dollCheek)"/>
 
-        <path d="M90,67 Q100,60 111,65" stroke="#7a5230" stroke-width="2.6" fill="none" stroke-linecap="round"/>
-        <path d="M129,65 Q140,60 150,67" stroke="#7a5230" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+        <path d="M88,66 Q99,58 112,64" stroke="#7a5230" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+        <path d="M128,64 Q141,58 152,66" stroke="#7a5230" stroke-width="2.6" fill="none" stroke-linecap="round"/>
 
-        <g transform="translate(100,85)">
-          <path d="M-15,0 Q-8,-10 0,-9 Q8,-10 15,0 Q8,10 0,9 Q-8,10 -15,0 Z" fill="#fff"/>
-          <circle cx="1" cy="1" r="7.4" fill="#6b4a3a"/>
-          <circle cx="1" cy="1" r="3.8" fill="#241a15"/>
-          <circle cx="-1.6" cy="-2.2" r="2" fill="#fff"/>
-          <path d="M-15,0 Q-8,-10 0,-9 Q8,-10 15,0" stroke="#3a2a20" stroke-width="1.7" fill="none"/>
-          <path d="M14,-1 L19,-4.5" stroke="#3a2a20" stroke-width="1.7" stroke-linecap="round"/>
+        <g transform="translate(96,86)">
+          <path d="M-18,0 Q-9,-12 0,-11 Q9,-12 18,0 Q9,12 0,11 Q-9,12 -18,0 Z" fill="#fff"/>
+          <circle cx="1" cy="2" r="9.2" fill="url(#dollIris)"/>
+          <circle cx="1" cy="2" r="4.6" fill="#241a15"/>
+          <circle cx="-2.4" cy="-3" r="2.8" fill="#fff"/>
+          <circle cx="4" cy="4.5" r="1.3" fill="#fff" opacity=".9"/>
+          <path d="M-18,0 Q-9,-12 0,-11 Q9,-12 18,0" stroke="#3a2a20" stroke-width="1.8" fill="none"/>
+          <path d="M17,-1 L22,-5" stroke="#3a2a20" stroke-width="1.8" stroke-linecap="round"/>
         </g>
-        <g transform="translate(140,85) scale(-1,1)">
-          <path d="M-15,0 Q-8,-10 0,-9 Q8,-10 15,0 Q8,10 0,9 Q-8,10 -15,0 Z" fill="#fff"/>
-          <circle cx="1" cy="1" r="7.4" fill="#6b4a3a"/>
-          <circle cx="1" cy="1" r="3.8" fill="#241a15"/>
-          <circle cx="-1.6" cy="-2.2" r="2" fill="#fff"/>
-          <path d="M-15,0 Q-8,-10 0,-9 Q8,-10 15,0" stroke="#3a2a20" stroke-width="1.7" fill="none"/>
-          <path d="M14,-1 L19,-4.5" stroke="#3a2a20" stroke-width="1.7" stroke-linecap="round"/>
+        <g transform="translate(144,86) scale(-1,1)">
+          <path d="M-18,0 Q-9,-12 0,-11 Q9,-12 18,0 Q9,12 0,11 Q-9,12 -18,0 Z" fill="#fff"/>
+          <circle cx="1" cy="2" r="9.2" fill="url(#dollIris)"/>
+          <circle cx="1" cy="2" r="4.6" fill="#241a15"/>
+          <circle cx="-2.4" cy="-3" r="2.8" fill="#fff"/>
+          <circle cx="4" cy="4.5" r="1.3" fill="#fff" opacity=".9"/>
+          <path d="M-18,0 Q-9,-12 0,-11 Q9,-12 18,0" stroke="#3a2a20" stroke-width="1.8" fill="none"/>
+          <path d="M17,-1 L22,-5" stroke="#3a2a20" stroke-width="1.8" stroke-linecap="round"/>
         </g>
 
-        <path d="M117,97 Q119,101 122,98" stroke="#e0ab8a" stroke-width="1.6" fill="none" stroke-linecap="round" opacity=".6"/>
-        <path d="M107,113 Q120,121 133,113 Q120,117 107,113 Z" fill="#e0637a"/>
-        <path d="M110,113 Q120,111 130,113" stroke="#fff" stroke-width="1" opacity=".4" fill="none"/>
+        <path d="M117,98 Q119,102 122,99" stroke="#e0ab8a" stroke-width="1.6" fill="none" stroke-linecap="round" opacity=".55"/>
+        <path d="M112,114 Q120,119 128,114" stroke="#e0637a" stroke-width="2.6" fill="none" stroke-linecap="round"/>
 
-        <path d="M73,70 Q68,28 120,22 Q172,28 167,70
-                 Q160,48 140,44 Q130,42 120,49 Q110,42 100,44 Q80,48 73,70 Z" fill="url(#dollHair)"/>
-        <path d="M77,68 Q70,92 79,113 Q84,90 87,71 Z" fill="url(#dollHair)"/>
-        <path d="M163,68 Q170,92 161,113 Q156,90 153,71 Z" fill="url(#dollHair)"/>
-        <path d="M93,33 Q120,24 147,33 Q121,29 93,33 Z" fill="#fff" opacity=".4"/>
+        <path d="M71,72 Q65,28 120,21 Q175,28 169,72
+                 Q161,48 140,44 Q129,42 120,50 Q111,42 100,44 Q79,48 71,72 Z" fill="url(#dollHair)"/>
+        <path d="M75,70 Q67,96 78,118 Q84,92 87,73 Z" fill="url(#dollHair)"/>
+        <path d="M165,70 Q173,96 162,118 Q156,92 153,73 Z" fill="url(#dollHair)"/>
+        <path d="M119,25 Q113,8 123,2 Q128,13 121,25 Z" fill="url(#dollHair)"/>
+        <path d="M91,32 Q120,22 149,32 Q121,27 91,32 Z" fill="#fff" opacity=".45"/>
+
+        <g id="worn-earrings"></g>
+        <g id="worn-hairclip"></g>
+        <g id="worn-tiara"></g>
+        <g id="worn-bracelet"></g>
+        <g id="worn-ring"></g>
+        <g id="worn-wand"></g>
+        <g id="worn-shoes"></g>
 
         <g fill="#ffe066" opacity=".85">
-          <polygon points="0,-6 1.6,-2 6,-2 2.6,0.8 4,5 0,2.4 -4,5 -2.6,0.8 -6,-2 -1.6,-2" transform="translate(28,54)"/>
-          <polygon points="0,-5 1.3,-1.6 5,-1.6 2.2,0.7 3.3,4 0,2 -3.3,4 -2.2,0.7 -5,-1.6 -1.3,-1.6" transform="translate(210,110) scale(.8)"/>
-          <polygon points="0,-5 1.3,-1.6 5,-1.6 2.2,0.7 3.3,4 0,2 -3.3,4 -2.2,0.7 -5,-1.6 -1.3,-1.6" transform="translate(24,270) scale(.9)"/>
+          <polygon points="0,-6 1.6,-2 6,-2 2.6,0.8 4,5 0,2.4 -4,5 -2.6,0.8 -6,-2 -1.6,-2" transform="translate(26,58)"/>
+          <polygon points="0,-5 1.3,-1.6 5,-1.6 2.2,0.7 3.3,4 0,2 -3.3,4 -2.2,0.7 -5,-1.6 -1.3,-1.6" transform="translate(214,114) scale(.8)"/>
+          <polygon points="0,-5 1.3,-1.6 5,-1.6 2.2,0.7 3.3,4 0,2 -3.3,4 -2.2,0.7 -5,-1.6 -1.3,-1.6" transform="translate(22,272) scale(.9)"/>
         </g>
       </svg>
-      <div class="avatar-slot" data-shape="tiara" style="left:50%;top:4%"></div>
-      <div class="avatar-slot" data-shape="hairclip" style="left:68%;top:13%"></div>
-      <div class="avatar-slot" data-shape="earrings" style="left:26%;top:23%"></div>
-      <div class="avatar-slot" data-shape="necklace" style="left:50%;top:41%"></div>
-      <div class="avatar-slot" data-shape="brooch" style="left:50%;top:49%"></div>
-      <div class="avatar-slot" data-shape="ribbon" style="left:50%;top:55%"></div>
-      <div class="avatar-slot" data-shape="bracelet" style="left:18%;top:59%"></div>
-      <div class="avatar-slot" data-shape="ring" style="left:18%;top:68%"></div>
-      <div class="avatar-slot" data-shape="wand" style="left:82%;top:61%"></div>
+      <div class="avatar-slot" data-shape="tiara" style="left:50%;top:5%"></div>
+      <div class="avatar-slot" data-shape="hairclip" style="left:69%;top:15%"></div>
+      <div class="avatar-slot" data-shape="earrings" style="left:24%;top:27%"></div>
+      <div class="avatar-slot" data-shape="necklace" style="left:50%;top:44%"></div>
+      <div class="avatar-slot" data-shape="brooch" style="left:50%;top:50%"></div>
+      <div class="avatar-slot" data-shape="ribbon" style="left:50%;top:54%"></div>
+      <div class="avatar-slot" data-shape="bracelet" style="left:21%;top:58%"></div>
+      <div class="avatar-slot" data-shape="ring" style="left:24%;top:62%"></div>
+      <div class="avatar-slot" data-shape="wand" style="left:88%;top:49%"></div>
       <div class="avatar-slot" data-shape="shoes" style="left:50%;top:97%"></div>
     </div>
     <div class="dressup-hint">したの宝箱からアイテムをタップして きせかえしよう！もう一度タップではずせるよ</div>
@@ -1055,16 +1069,84 @@
     });
   });
 
-  function itemIconInner(item){
+  function resolveFill(item){
     const gem = GEMS.find(g=>g.id===item.gem);
-    const shape = SHAPES.find(s=>s.id===item.shape);
-    let fill = gem.hex, defs = "";
     if(gem.id === "rainbow"){
       const gid = `rg-${item.id}`;
-      defs = `<defs><linearGradient id="${gid}" x1="0" y1="0" x2="1" y2="1">${RAINBOW_STOPS}</linearGradient></defs>`;
-      fill = `url(#${gid})`;
+      return {
+        fill: `url(#${gid})`,
+        defs: `<defs><linearGradient id="${gid}" x1="0" y1="0" x2="1" y2="1">${RAINBOW_STOPS}</linearGradient></defs>`
+      };
     }
+    return { fill: gem.hex, defs: "" };
+  }
+
+  function itemIconInner(item){
+    const shape = SHAPES.find(s=>s.id===item.shape);
+    const {fill, defs} = resolveFill(item);
     return defs + shape.svg(fill);
+  }
+
+  /* ---------- 実際に「身につけて」見えるアクセサリー描画（人形の座標系に直接配置） ---------- */
+  const WORN = {
+    tiara: c => `
+      <path d="M78,38 Q120,15 162,38 L156,50 Q120,32 84,50 Z" fill="#f4c14e" stroke="#e0a92e" stroke-width="1.5"/>
+      <circle cx="120" cy="30" r="6" fill="${c}"/><circle cx="98" cy="41" r="4" fill="${c}" opacity=".85"/><circle cx="142" cy="41" r="4" fill="${c}" opacity=".85"/>`,
+    hairclip: c => `
+      <g transform="translate(158,58) rotate(15)">
+        <rect x="-14" y="-4" width="28" height="8" rx="4" fill="${c}" stroke="rgba(0,0,0,.2)" stroke-width="1"/>
+        <circle cx="0" cy="0" r="6" fill="#fff8ec" stroke="rgba(0,0,0,.15)" stroke-width="1"/>
+        <circle cx="0" cy="0" r="2.6" fill="${c}"/>
+      </g>`,
+    earrings: c => `
+      <g transform="translate(70,102)">
+        <circle cx="0" cy="0" r="2.5" fill="#f4c14e"/><line x1="0" y1="2.5" x2="0" y2="10" stroke="#f4c14e" stroke-width="1.6"/>
+        <polygon points="0,10 4.5,19 0,26 -4.5,19" fill="${c}" stroke="rgba(0,0,0,.2)" stroke-width="1.2"/>
+      </g>
+      <g transform="translate(170,102)">
+        <circle cx="0" cy="0" r="2.5" fill="#f4c14e"/><line x1="0" y1="2.5" x2="0" y2="10" stroke="#f4c14e" stroke-width="1.6"/>
+        <polygon points="0,10 4.5,19 0,26 -4.5,19" fill="${c}" stroke="rgba(0,0,0,.2)" stroke-width="1.2"/>
+      </g>`,
+    necklace: c => `
+      <path d="M97,152 Q120,168 143,152" fill="none" stroke="#f4c14e" stroke-width="3" stroke-linecap="round"/>
+      <polygon points="120,164 128,176 120,190 112,176" fill="${c}" stroke="rgba(0,0,0,.2)" stroke-width="1.5"/>
+      <polygon points="120,164 128,176 120,176" fill="#fff" opacity=".5"/>`,
+    brooch: c => `
+      <g transform="translate(120,200)">
+        <g fill="${c}"><ellipse cx="0" cy="-7" rx="4.5" ry="6.5"/><ellipse cx="0" cy="7" rx="4.5" ry="6.5"/><ellipse cx="-7" cy="0" rx="6.5" ry="4.5"/><ellipse cx="7" cy="0" rx="6.5" ry="4.5"/></g>
+        <circle cx="0" cy="0" r="5" fill="#f4c14e" stroke="#e0a92e" stroke-width="1"/>
+      </g>`,
+    ribbon: c => `
+      <g transform="translate(120,208)">
+        <polygon points="0,0 -16,-9 -16,9" fill="${c}" stroke="rgba(0,0,0,.2)" stroke-width="1.2"/>
+        <polygon points="0,0 16,-9 16,9" fill="${c}" stroke="rgba(0,0,0,.2)" stroke-width="1.2"/>
+        <circle cx="0" cy="0" r="5" fill="#fff8ec" stroke="rgba(0,0,0,.15)" stroke-width="1"/>
+      </g>`,
+    bracelet: c => `
+      <g transform="translate(50,222) rotate(-25)">
+        <ellipse cx="0" cy="0" rx="10" ry="6" fill="none" stroke="#f4c14e" stroke-width="4"/>
+        <circle cx="0" cy="-6" r="3" fill="${c}"/>
+      </g>`,
+    ring: c => `
+      <g transform="translate(58,236)">
+        <circle cx="0" cy="0" r="4" fill="none" stroke="#f4c14e" stroke-width="2.2"/>
+        <polygon points="0,-6 3,-2 0,2 -3,-2" fill="${c}" stroke="rgba(0,0,0,.2)" stroke-width="1"/>
+      </g>`,
+    wand: c => `
+      <line x1="184" y1="235" x2="215" y2="192" stroke="#e0a92e" stroke-width="5" stroke-linecap="round"/>
+      <g transform="translate(218,186)"><polygon points="0,-11 3,-3 11,0 3,3 0,11 -3,3 -11,0 -3,-3" fill="${c}" stroke="rgba(0,0,0,.2)" stroke-width="1.5"/></g>`,
+    shoes: c => `
+      <ellipse cx="107" cy="368" rx="15" ry="7" fill="${c}" stroke="rgba(0,0,0,.25)" stroke-width="1.5"/>
+      <ellipse cx="107" cy="365" rx="6" ry="3" fill="#fff" opacity=".5"/>
+      <ellipse cx="133" cy="368" rx="15" ry="7" fill="${c}" stroke="rgba(0,0,0,.25)" stroke-width="1.5"/>
+      <ellipse cx="133" cy="365" rx="6" ry="3" fill="#fff" opacity=".5"/>`
+  };
+
+  function wornMarkup(item){
+    const tpl = WORN[item.shape];
+    if(!tpl) return "";
+    const {fill, defs} = resolveFill(item);
+    return defs + `<g class="worn-item">${tpl(fill)}</g>`;
   }
 
   /* ---------- 状態管理 ---------- */
@@ -1336,20 +1418,14 @@
 
   function renderAvatar(){
     SHAPES.forEach(shape=>{
-      const slot = document.querySelector(`.avatar-slot[data-shape="${shape.id}"]`);
-      if(!slot) return;
+      const g = document.getElementById(`worn-${shape.id}`);
+      if(!g) return;
       const itemId = state.equipped[shape.id];
-      if(itemId){
-        const item = ITEMS.find(i=>i.id===itemId);
-        slot.innerHTML = item ? `<svg viewBox="0 0 100 100">${itemIconInner(item)}</svg>` : "";
-        slot.classList.add("filled");
-        slot.title = item ? item.name + "（タップではずす）" : "";
-      }else{
-        slot.innerHTML = "";
-        slot.classList.remove("filled");
-        slot.title = shape.name + "（からっぽ）";
-      }
+      const item = itemId ? ITEMS.find(i=>i.id===itemId) : null;
+      g.innerHTML = item ? wornMarkup(item) : "";
     });
+    const defaultShoes = document.getElementById("worn-shoes-default");
+    if(defaultShoes) defaultShoes.style.display = state.equipped.shoes ? "none" : "";
   }
 
   document.querySelectorAll(".avatar-slot").forEach(slot=>{
