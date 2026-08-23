@@ -1,0 +1,2339 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>プリンセスたしざんランド</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>👑</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Kiwi+Maru:wght@400;500&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg1:#ffd9ec;
+    --bg2:#dcd2ff;
+    --bg3:#c9ecff;
+    --card:#fffaff;
+    --ink:#7a4a76;
+    --ink-soft:#a97ea3;
+    --gold:#f4c14e;
+    --pink-deep:#ff6fa5;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0;
+    padding:0;
+    min-height:100%;
+    font-family:'Kiwi Maru','Baloo 2',sans-serif;
+    color:var(--ink);
+    overflow-x:hidden;
+  }
+  body{
+    background:
+      radial-gradient(circle at 15% 20%, #fff 0%, transparent 2%),
+      radial-gradient(circle at 80% 10%, #fff 0%, transparent 2%),
+      radial-gradient(circle at 60% 70%, #fff 0%, transparent 2%),
+      linear-gradient(160deg, var(--bg1), var(--bg2) 55%, var(--bg3));
+    min-height:100vh;
+    position:relative;
+  }
+
+  /* ===== 背景のきらきら ===== */
+  .sparkles{
+    position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:0;
+  }
+  .sparkles span{
+    position:absolute;
+    font-size:20px;
+    opacity:.55;
+    animation:float 9s linear infinite;
+    filter:drop-shadow(0 0 4px #fff);
+  }
+  @keyframes float{
+    0%{transform:translateY(110vh) rotate(0deg) scale(.7); opacity:0;}
+    10%{opacity:.7;}
+    90%{opacity:.6;}
+    100%{transform:translateY(-10vh) rotate(360deg) scale(1.1); opacity:0;}
+  }
+
+  .wrap{
+    position:relative;
+    z-index:1;
+    max-width:640px;
+    margin:0 auto;
+    padding:18px 14px 60px;
+  }
+
+  header{
+    text-align:center;
+    margin-bottom:10px;
+  }
+  h1{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:clamp(20px,6.4vw,34px);
+    margin:6px 0 2px;
+    color:var(--pink-deep);
+    text-shadow: 2px 2px 0 #fff, -1px -1px 0 #fff, 0 3px 8px rgba(255,111,165,.35);
+    letter-spacing:.5px;
+    word-break:keep-all;
+    white-space:nowrap;
+  }
+  header .sub{
+    font-size:14px;
+    color:var(--ink-soft);
+  }
+
+  .top-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin:14px 0;
+  }
+
+  .mascot-box{
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .mascot{
+    font-size:46px;
+    display:inline-block;
+    animation:bob 2.6s ease-in-out infinite;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,.15));
+  }
+  @keyframes bob{
+    0%,100%{transform:translateY(0) rotate(-2deg);}
+    50%{transform:translateY(-6px) rotate(2deg);}
+  }
+  .mascot.happy{animation:happyjump .5s ease;}
+  @keyframes happyjump{
+    0%{transform:translateY(0) scale(1);}
+    30%{transform:translateY(-22px) scale(1.15) rotate(-8deg);}
+    60%{transform:translateY(-4px) scale(1.05) rotate(6deg);}
+    100%{transform:translateY(0) scale(1);}
+  }
+  .mascot.oops{animation:oopsshake .5s ease;}
+  @keyframes oopsshake{
+    0%,100%{transform:translateX(0) rotate(0);}
+    25%{transform:translateX(-6px) rotate(-6deg);}
+    75%{transform:translateX(6px) rotate(6deg);}
+  }
+
+  .streak-gauge{
+    display:flex;
+    gap:6px;
+    background:#fff;
+    padding:8px 12px;
+    border-radius:20px;
+    box-shadow:0 3px 0 #f0d9ea, 0 6px 14px rgba(150,90,150,.15);
+  }
+  .streak-gauge .heart{
+    font-size:22px;
+    opacity:.25;
+    transition:transform .25s ease, opacity .25s ease;
+  }
+  .streak-gauge .heart.on{
+    opacity:1;
+    transform:scale(1.2);
+  }
+
+  .sound-btn{
+    border:none;
+    background:#fff;
+    width:44px;height:44px;
+    border-radius:50%;
+    font-size:20px;
+    box-shadow:0 3px 0 #f0d9ea, 0 6px 14px rgba(150,90,150,.15);
+    cursor:pointer;
+  }
+  .switch-btn{
+    border:none;
+    background:#fff;
+    width:36px;height:36px;
+    border-radius:50%;
+    font-size:16px;
+    box-shadow:0 3px 0 #f0d9ea, 0 6px 14px rgba(150,90,150,.15);
+    cursor:pointer;
+  }
+
+  /* ===== タイトル（プレイヤー選択）画面 ===== */
+  .title-screen{
+    position:fixed;
+    inset:0;
+    z-index:50;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    background:
+      radial-gradient(circle at 15% 20%, #fff 0%, transparent 2%),
+      radial-gradient(circle at 80% 10%, #fff 0%, transparent 2%),
+      radial-gradient(circle at 60% 70%, #fff 0%, transparent 2%),
+      linear-gradient(160deg, var(--bg1), var(--bg2) 55%, var(--bg3));
+  }
+  .title-screen.hidden{display:none;}
+  .title-card{
+    background:#fffaff;
+    border-radius:28px;
+    padding:34px 20px;
+    text-align:center;
+    max-width:400px;
+    width:100%;
+    box-shadow:0 10px 0 #f0d3ea, 0 20px 40px rgba(150,90,150,.25);
+  }
+  .title-heading{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:24px;
+    color:var(--pink-deep);
+    margin:0 0 26px;
+  }
+  .player-picker{
+    display:flex;
+    gap:10px;
+    justify-content:center;
+  }
+  .player-card{
+    flex:1;
+    min-width:0;
+    border:none;
+    border-radius:20px;
+    padding:16px 6px;
+    background:linear-gradient(160deg,#fff0f8,#f3e6fb);
+    cursor:pointer;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+    box-shadow:0 4px 0 #e8cfe0, 0 8px 16px rgba(150,90,150,.15);
+    transition:transform .12s ease;
+  }
+  .player-card:active{transform:translateY(3px); box-shadow:0 1px 0 #e8cfe0;}
+  .player-emoji{font-size:42px;}
+  .player-name{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:15px;
+    color:var(--ink);
+  }
+
+  /* なおやモードでは数字とプリンセスの対応図鑑は非表示 */
+  body[data-player="naoya"] .legend,
+  body[data-player="youta"] .legend{display:none;}
+  /* プリンセスのきせかえ人形とマイクラのそうびコーナーは、選んだプレイヤーに応じて片方だけ表示する */
+  .dressup-mc{display:none;}
+  body[data-player="youta"] #dressupPrincess{display:none;}
+  body[data-player="youta"] #dressupMC{display:block;}
+
+  /* ===== なおやモード：自由入力の計算 ===== */
+  .naoya-num{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:clamp(32px,8vw,44px);
+    color:var(--pink-deep);
+    background:#fff0f8;
+    padding:10px 16px;
+    border-radius:16px;
+    box-shadow:0 3px 0 #f0d3ea;
+  }
+  .naoya-input-wrap{display:flex;}
+  .naoya-input{
+    width:130px;
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:36px;
+    text-align:center;
+    border:3px solid #e3b8d8;
+    border-radius:16px;
+    padding:8px 6px;
+    color:var(--ink);
+    background:#fff;
+    outline:none;
+  }
+  .naoya-input:focus{border-color:var(--pink-deep);}
+  .naoya-input.naoya-correct{border-color:#57c98a; background:#eafff2; animation:qCorrectPulse .6s ease;}
+  .naoya-input.naoya-wrong{border-color:#ff6b7a; background:#fff0f0; animation:qShake .5s ease;}
+  .naoya-input::-webkit-outer-spin-button,
+  .naoya-input::-webkit-inner-spin-button{-webkit-appearance:none; margin:0;}
+  .naoya-input[type=number]{-moz-appearance:textfield;}
+  .naoya-submit-btn{
+    border:none;
+    background:linear-gradient(135deg,#ff9ecb,#ff6fa5);
+    color:#fff;
+    font-family:'Baloo 2',sans-serif;
+    font-weight:700;
+    font-size:20px;
+    padding:14px 32px;
+    border-radius:20px;
+    cursor:pointer;
+    box-shadow:0 4px 0 #d9457e;
+  }
+  .naoya-submit-btn:active{transform:translateY(3px); box-shadow:0 1px 0 #d9457e;}
+  .naoya-submit-btn:disabled{opacity:.6; cursor:default;}
+
+  /* ===== 問題カード ===== */
+  .problem-card{
+    background:var(--card);
+    border-radius:28px;
+    padding:22px 16px 26px;
+    box-shadow:0 6px 0 #f0d3ea, 0 14px 30px rgba(150,90,150,.2);
+    position:relative;
+    overflow:hidden;
+  }
+  .problem-card::before{
+    content:"";
+    position:absolute; top:-40px; right:-40px;
+    width:120px;height:120px;border-radius:50%;
+    background:radial-gradient(circle, rgba(255,220,240,.9), transparent 70%);
+  }
+
+  .equation{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-bottom:18px;
+  }
+  .free-terms-row,
+  .free-answer-row{
+    flex-basis:100%;
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+  }
+  .free-answer-row{margin-top:6px;}
+  .num-chip{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:4px;
+    padding:10px 12px 12px;
+    border-radius:20px;
+    min-width:96px;
+  }
+  .princess-badge{
+    width:48px;
+    height:48px;
+    filter:drop-shadow(0 2px 3px rgba(0,0,0,.18));
+  }
+  .pname{
+    font-family:'Kiwi Maru',sans-serif;
+    font-size:11px;
+    font-weight:500;
+    color:#fff;
+    text-shadow:0 1px 2px rgba(0,0,0,.2);
+    white-space:nowrap;
+  }
+  .num-chip .digit{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:36px;
+    line-height:1;
+    color:#fff;
+    text-shadow:0 2px 0 rgba(0,0,0,.12);
+  }
+  .num-chip .dots{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:3px;
+  }
+  .num-chip .dot-row{
+    display:flex;
+    justify-content:center;
+    gap:4px;
+  }
+  .num-chip .dots i{
+    width:9px;height:9px;border-radius:50%;
+    background:rgba(255,255,255,.85);
+    display:inline-block;
+    box-shadow:0 1px 1px rgba(0,0,0,.15) inset;
+  }
+  .op{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:34px;
+    color:var(--ink-soft);
+  }
+  .q-chip{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-width:88px;
+    min-height:96px;
+    border-radius:20px;
+    background:repeating-linear-gradient(135deg,#f6e3f6,#f6e3f6 10px,#f0d6f2 10px,#f0d6f2 20px);
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:44px;
+    color:#fff;
+    text-shadow:0 2px 0 rgba(0,0,0,.12);
+    transition:background .2s ease;
+  }
+  .q-chip .qdigit{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:44px;
+    color:#fff;
+    text-shadow:0 2px 0 rgba(0,0,0,.12);
+  }
+  .q-chip.q-pop{ animation:qPop .35s ease; }
+  .q-chip.q-correct{ animation:qCorrectPulse .6s ease; box-shadow:0 0 0 5px #ffe066 inset; }
+  .q-chip.q-wrong{ animation:qShake .5s ease; }
+  .q-chip.q-reveal{ box-shadow:0 0 0 4px rgba(255,224,102,.9) inset; }
+  @keyframes qPop{
+    0%{transform:scale(.4); opacity:0;}
+    65%{transform:scale(1.18); opacity:1;}
+    100%{transform:scale(1);}
+  }
+  @keyframes qCorrectPulse{
+    0%{transform:scale(1);}
+    45%{transform:scale(1.18);}
+    100%{transform:scale(1);}
+  }
+  @keyframes qShake{
+    0%,100%{transform:translateX(0);}
+    25%{transform:translateX(-7px);}
+    75%{transform:translateX(7px);}
+  }
+
+  .choices{
+    display:flex;
+    justify-content:center;
+    gap:14px;
+    flex-wrap:wrap;
+  }
+  .choice-btn{
+    border:none;
+    cursor:pointer;
+    border-radius:22px;
+    padding:10px 10px 12px;
+    min-width:96px;
+    min-height:130px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:2px;
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:34px;
+    color:#fff;
+    text-shadow:0 2px 0 rgba(0,0,0,.12);
+    box-shadow:0 5px 0 rgba(0,0,0,.13), 0 10px 18px rgba(150,90,150,.18);
+    transition:transform .12s ease;
+  }
+  .choice-btn:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(0,0,0,.13);}
+  .choice-btn .label{
+    font-family:'Kiwi Maru',sans-serif;
+    font-size:12px;
+    font-weight:500;
+    color:rgba(255,255,255,.95);
+  }
+  .choice-btn.correct-flash{outline:5px solid #ffe066; animation:pulse .5s ease;}
+  .choice-btn.wrong-flash{filter:grayscale(.4) brightness(.85);}
+  @keyframes pulse{
+    0%{transform:scale(1);}
+    40%{transform:scale(1.12);}
+    100%{transform:scale(1);}
+  }
+
+  .feedback{
+    text-align:center;
+    min-height:30px;
+    margin-top:14px;
+    font-size:18px;
+    font-weight:500;
+  }
+  .feedback.good{color:#e0862a;}
+  .feedback.bad{color:#ff6fa5;}
+
+  /* ===== きせかえコーナー ===== */
+  .dressup{
+    margin-top:22px;
+    background:#fff;
+    border-radius:24px;
+    padding:16px;
+    box-shadow:0 5px 0 #f0d9ea, 0 10px 20px rgba(150,90,150,.15);
+  }
+  .dressup h2{
+    margin:2px 0 12px;
+    font-size:16px;
+    text-align:center;
+    color:var(--pink-deep);
+  }
+  .avatar-stage{
+    position:relative;
+    width:min(280px, 78vw);
+    aspect-ratio:240/380;
+    margin:0 auto;
+    background:
+      radial-gradient(ellipse at 50% 28%, rgba(255,255,255,.9), transparent 55%),
+      linear-gradient(160deg, #fdeef8, #f3e6fb 55%, #eaf3ff);
+    border-radius:20px;
+    overflow:hidden;
+  }
+  .dressup-mc .avatar-stage{
+    aspect-ratio:200/300;
+  }
+  .avatar-stage::before{
+    content:"";
+    position:absolute; inset:0;
+    background:
+      radial-gradient(2px 2px at 15% 15%, #fff, transparent),
+      radial-gradient(2px 2px at 85% 20%, #fff, transparent),
+      radial-gradient(1.5px 1.5px at 75% 8%, #fff, transparent),
+      radial-gradient(1.5px 1.5px at 25% 85%, #fff, transparent),
+      radial-gradient(2px 2px at 90% 70%, #fff, transparent);
+    opacity:.8;
+    pointer-events:none;
+  }
+  .avatar-doll{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+  }
+  .avatar-slot{
+    position:absolute;
+    width:15%;
+    aspect-ratio:1;
+    max-width:40px;
+    transform:translate(-50%,-50%);
+    border-radius:50%;
+    background:transparent;
+    border:none;
+    cursor:pointer;
+    z-index:2;
+  }
+  .avatar-slot:active{transform:translate(-50%,-50%) scale(.94);}
+  .worn-item{transition:opacity .2s ease;}
+  .dressup-hint{
+    text-align:center;
+    font-size:12px;
+    color:var(--ink-soft);
+    margin-top:12px;
+  }
+
+  /* ===== コレクション ===== */
+  .collection{
+    margin-top:22px;
+    background:#fff;
+    border-radius:24px;
+    padding:16px;
+    box-shadow:0 5px 0 #f0d9ea, 0 10px 20px rgba(150,90,150,.15);
+  }
+  .collection h2{
+    margin:2px 0 10px;
+    font-size:16px;
+    text-align:center;
+    color:var(--pink-deep);
+  }
+  .collection .count{
+    text-align:center;
+    font-size:12px;
+    color:var(--ink-soft);
+    margin-bottom:10px;
+  }
+  .item-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(64px,1fr));
+    gap:10px;
+  }
+  .item-slot{
+    position:relative;
+    aspect-ratio:1;
+    border-radius:16px;
+    background:linear-gradient(160deg,#fbeaf7,#f2e3ff);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .item-slot{cursor:pointer;}
+  .item-slot svg{width:70%;height:70%;}
+  .item-slot.equipped{
+    outline:3px solid #ffe066;
+    outline-offset:-3px;
+    background:linear-gradient(160deg,#fff3d9,#ffe9f5);
+  }
+  .item-slot .wornmark{
+    position:absolute; top:2px; left:4px;
+    font-size:11px;
+  }
+  .item-slot .badge{
+    position:absolute; bottom:2px; right:4px;
+    font-size:10px; background:var(--pink-deep); color:#fff;
+    border-radius:8px; padding:0 5px; font-weight:700;
+  }
+  .empty-hint{
+    grid-column:1/-1;
+    text-align:center;
+    font-size:13px;
+    color:var(--ink-soft);
+    padding:18px 10px;
+  }
+
+  /* ===== プリンセス図鑑 ===== */
+  .legend{
+    margin-top:16px;
+    background:#fff;
+    border-radius:24px;
+    padding:16px;
+    box-shadow:0 5px 0 #f0d9ea, 0 10px 20px rgba(150,90,150,.15);
+  }
+  .legend h2{
+    margin:2px 0 12px;
+    font-size:16px;
+    text-align:center;
+    color:var(--pink-deep);
+  }
+  .legend-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(80px,1fr));
+    gap:10px;
+  }
+  .legend-item{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:4px;
+    padding:8px 4px;
+    border-radius:16px;
+  }
+  .legend-item .princess-badge{
+    width:38px;
+    height:38px;
+  }
+  .legend-item .ldigit{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:18px;
+    color:#fff;
+    text-shadow:0 1px 0 rgba(0,0,0,.12);
+  }
+  .legend-item .lname{
+    font-size:10px;
+    font-weight:500;
+    color:#fff;
+    text-shadow:0 1px 2px rgba(0,0,0,.15);
+    text-align:center;
+    line-height:1.2;
+  }
+
+  /* ===== ごほうびモーダル ===== */
+  .modal-back{
+    position:fixed; inset:0; background:rgba(120,70,110,.45);
+    display:flex; align-items:center; justify-content:center;
+    z-index:20; padding:20px;
+    opacity:0; pointer-events:none; transition:opacity .25s ease;
+  }
+  .modal-back.show{opacity:1; pointer-events:auto;}
+  .modal{
+    background:#fffaff;
+    border-radius:28px;
+    padding:26px 22px 22px;
+    max-width:320px;
+    width:100%;
+    text-align:center;
+    box-shadow:0 20px 50px rgba(80,30,70,.35);
+    transform:scale(.7);
+    transition:transform .3s cubic-bezier(.34,1.56,.64,1);
+  }
+  .modal-back.show .modal{transform:scale(1);}
+  .modal h3{
+    color:var(--pink-deep);
+    font-size:20px;
+    margin:4px 0 14px;
+  }
+  .modal .item-icon{
+    width:120px;height:120px;
+    margin:0 auto 12px;
+    animation:spinin .6s ease;
+  }
+  @keyframes spinin{
+    0%{transform:scale(.3) rotate(-30deg); opacity:0;}
+    100%{transform:scale(1) rotate(0); opacity:1;}
+  }
+  .modal .item-name{
+    font-size:17px;
+    font-weight:700;
+    color:var(--ink);
+    margin-bottom:16px;
+  }
+  .modal button{
+    border:none;
+    background:linear-gradient(135deg,#ff9ecb,#ff6fa5);
+    color:#fff;
+    font-family:'Baloo 2',sans-serif;
+    font-weight:700;
+    font-size:16px;
+    padding:12px 28px;
+    border-radius:20px;
+    cursor:pointer;
+    box-shadow:0 4px 0 #d9457e;
+  }
+  .modal button:active{transform:translateY(3px); box-shadow:0 1px 0 #d9457e;}
+
+  /* 紙吹雪 */
+  .confetti-piece{
+    position:fixed;
+    top:-10px;
+    z-index:30;
+    pointer-events:none;
+    border-radius:2px;
+    animation:fall 2.4s linear forwards;
+  }
+  @keyframes fall{
+    to{transform:translateY(110vh) rotate(540deg); opacity:.2;}
+  }
+
+  footer{
+    text-align:center;
+    font-size:11px;
+    color:var(--ink-soft);
+    margin-top:26px;
+  }
+
+  /* ================================================================
+     陽太モード：完全マインクラフト風UI
+     ================================================================ */
+  body[data-player="youta"]{
+    background:
+      repeating-linear-gradient(0deg, rgba(0,0,0,.07) 0 4px, transparent 4px 32px),
+      repeating-linear-gradient(90deg, rgba(0,0,0,.07) 0 4px, transparent 4px 32px),
+      linear-gradient(180deg, #7ec850 0%, #7ec850 7%, #8b5a2b 7%, #6b4423 100%);
+  }
+  body[data-player="youta"] .sparkles span{filter:none; text-shadow:none;}
+
+  body[data-player="youta"] header,
+  body[data-player="youta"] .problem-card,
+  body[data-player="youta"] .dressup,
+  body[data-player="youta"] .collection{
+    background:#c6c6c6;
+    border-radius:0;
+    border:4px solid #1a1a1a;
+    box-shadow:inset -4px -4px 0 rgba(0,0,0,.35), inset 4px 4px 0 rgba(255,255,255,.5);
+    padding:14px 12px;
+  }
+  body[data-player="youta"] header{margin-bottom:14px;}
+  body[data-player="youta"] .problem-card::before{display:none;}
+
+  body[data-player="youta"] #mainWrap h1{
+    color:#3a6b2a;
+    text-shadow:2px 2px 0 #000, -1px -1px 0 #000;
+    letter-spacing:0;
+  }
+  body[data-player="youta"] header .sub{color:#3a3a3a; font-weight:700;}
+  body[data-player="youta"] .collection h2,
+  body[data-player="youta"] .dressup h2{color:#3a3a3a; text-shadow:none;}
+  body[data-player="youta"] .collection .count,
+  body[data-player="youta"] .empty-hint,
+  body[data-player="youta"] .dressup-hint{color:#4a4a4a;}
+
+  body[data-player="youta"] .sound-btn,
+  body[data-player="youta"] .switch-btn{
+    background:#8b8b8b;
+    border-radius:0;
+    box-shadow:inset -3px -3px 0 rgba(0,0,0,.4), inset 3px 3px 0 rgba(255,255,255,.4);
+  }
+  body[data-player="youta"] .sound-btn:active,
+  body[data-player="youta"] .switch-btn:active{
+    box-shadow:inset 3px 3px 0 rgba(0,0,0,.4), inset -3px -3px 0 rgba(255,255,255,.2);
+  }
+
+  body[data-player="youta"] .streak-gauge{
+    background:#8b8b8b;
+    border-radius:0;
+    box-shadow:inset -3px -3px 0 rgba(0,0,0,.4), inset 3px 3px 0 rgba(255,255,255,.3);
+  }
+
+  .mascot.mascot-pixel{
+    width:46px; height:46px;
+    display:inline-block;
+  }
+  .mascot.mascot-pixel svg{image-rendering:pixelated; display:block;}
+
+  body[data-player="youta"] .op{color:#2b2b2b; font-weight:800;}
+
+  body[data-player="youta"] .naoya-num{
+    background:#3a3a3a;
+    color:#7ee0ff;
+    border-radius:0;
+    box-shadow:inset -3px -3px 0 rgba(0,0,0,.5), inset 3px 3px 0 rgba(255,255,255,.15);
+    font-family:'Press Start 2P', 'Kiwi Maru', sans-serif;
+    font-size:18px;
+    padding:14px 10px;
+  }
+  body[data-player="youta"] .naoya-input{
+    background:#2b2b2b;
+    color:#7ee0ff;
+    border:none;
+    border-radius:0;
+    box-shadow:inset -3px -3px 0 rgba(0,0,0,.5), inset 3px 3px 0 rgba(255,255,255,.1);
+    font-family:'Press Start 2P', sans-serif;
+    font-size:20px;
+  }
+  body[data-player="youta"] .naoya-input::placeholder{color:#5a8a9a;}
+  body[data-player="youta"] .naoya-input.naoya-correct{
+    background:#1e3a1e; color:#7dff7d;
+    box-shadow:inset -3px -3px 0 rgba(0,0,0,.5), inset 3px 3px 0 rgba(120,255,120,.3);
+  }
+  body[data-player="youta"] .naoya-input.naoya-wrong{
+    background:#3a1e1e; color:#ff7d7d;
+    box-shadow:inset -3px -3px 0 rgba(0,0,0,.5), inset 3px 3px 0 rgba(255,120,120,.3);
+  }
+  body[data-player="youta"] .naoya-submit-btn{
+    background:#8b8b8b;
+    color:#fff;
+    text-shadow:2px 2px 0 #000;
+    border-radius:0;
+    box-shadow:inset -4px -4px 0 rgba(0,0,0,.4), inset 4px 4px 0 rgba(255,255,255,.4);
+    font-family:'Press Start 2P', 'Kiwi Maru', sans-serif;
+    font-size:12px;
+    padding:16px 20px;
+  }
+  body[data-player="youta"] .naoya-submit-btn:active{
+    box-shadow:inset 4px 4px 0 rgba(0,0,0,.4), inset -4px -4px 0 rgba(255,255,255,.2);
+    transform:translateY(2px);
+  }
+
+  body[data-player="youta"] .feedback.good{color:#3a8f3a; font-weight:700;}
+  body[data-player="youta"] .feedback.bad{color:#c0392b; font-weight:700;}
+
+  body[data-player="youta"] .item-slot{
+    background:#b0b0b0;
+    border-radius:0;
+    box-shadow:inset -2px -2px 0 rgba(0,0,0,.3), inset 2px 2px 0 rgba(255,255,255,.4);
+  }
+  body[data-player="youta"] .avatar-stage{
+    background:#c6c6c6;
+    border-radius:0;
+    border:4px solid #1a1a1a;
+  }
+  body[data-player="youta"] .avatar-stage::before{display:none;}
+
+  body[data-player="youta"] .modal{
+    background:#c6c6c6;
+    border-radius:0;
+    border:4px solid #1a1a1a;
+    box-shadow:inset -4px -4px 0 rgba(0,0,0,.35), inset 4px 4px 0 rgba(255,255,255,.5), 0 20px 50px rgba(0,0,0,.5);
+  }
+  body[data-player="youta"] .modal h3,
+  body[data-player="youta"] .modal .item-name{color:#2b2b2b;}
+  body[data-player="youta"] .modal button{
+    background:#8b8b8b;
+    border-radius:0;
+    box-shadow:inset -4px -4px 0 rgba(0,0,0,.4), inset 4px 4px 0 rgba(255,255,255,.4);
+    color:#fff;
+    text-shadow:1px 1px 0 #000;
+    font-family:'Press Start 2P', 'Baloo 2', sans-serif;
+    font-size:11px;
+  }
+  body[data-player="youta"] .modal button:active{
+    box-shadow:inset 4px 4px 0 rgba(0,0,0,.4), inset -4px -4px 0 rgba(255,255,255,.2);
+    transform:translateY(2px);
+  }
+</style>
+</head>
+<body>
+
+<div class="sparkles" id="sparkles"></div>
+
+<div class="title-screen" id="titleScreen">
+  <div class="title-card">
+    <h1 class="title-heading">だれが あそぶ？</h1>
+    <div class="player-picker">
+      <button class="player-card" data-player="anna">
+        <span class="player-emoji">👸</span>
+        <span class="player-name">あんな</span>
+      </button>
+      <button class="player-card" data-player="naoya">
+        <span class="player-emoji">🤴</span>
+        <span class="player-name">なおや</span>
+      </button>
+      <button class="player-card" data-player="youta">
+        <span class="player-emoji">⛏️</span>
+        <span class="player-name">陽太</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap" id="mainWrap">
+  <header>
+    <h1 id="mainTitle">👑 プリンセスたしざんランド 👑</h1>
+    <div class="sub" id="mainSub">かずをたしてドレスアップ・アイテムをあつめよう！</div>
+  </header>
+
+  <div class="top-row">
+    <div class="mascot-box">
+      <span class="mascot" id="mascot">👸</span>
+      <button class="switch-btn" id="switchPlayerBtn" title="プレイヤーをかえる">🔁</button>
+      <div class="streak-gauge" id="streakGauge">
+        <span class="heart">💗</span>
+        <span class="heart">💗</span>
+        <span class="heart">💗</span>
+      </div>
+    </div>
+    <button class="sound-btn" id="soundBtn" title="おと ON/OFF">🔊</button>
+  </div>
+
+  <div class="problem-card">
+    <div class="equation" id="equation"></div>
+    <div class="choices" id="choices"></div>
+    <div class="feedback" id="feedback"></div>
+  </div>
+
+  <div class="dressup" id="dressupPrincess">
+    <h2>👗 きせかえコーナー 👗</h2>
+    <div class="avatar-stage">
+      <svg class="avatar-doll" viewBox="0 0 240 380">
+        <defs>
+          <radialGradient id="dollSkin" cx="35%" cy="28%" r="80%">
+            <stop offset="0%" stop-color="#fff2e2"/>
+            <stop offset="100%" stop-color="#ffdcb6"/>
+          </radialGradient>
+          <linearGradient id="dollHair" x1="10%" y1="0%" x2="90%" y2="100%">
+            <stop offset="0%" stop-color="#e0ab72"/>
+            <stop offset="55%" stop-color="#af7736"/>
+            <stop offset="100%" stop-color="#8f5b24"/>
+          </linearGradient>
+          <linearGradient id="dollDress" x1="50%" y1="0%" x2="50%" y2="100%">
+            <stop offset="0%" stop-color="#fff2f8"/>
+            <stop offset="45%" stop-color="#ffc2e3"/>
+            <stop offset="100%" stop-color="#ff7fc0"/>
+          </linearGradient>
+          <radialGradient id="dollCheek" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#ff8aa4" stop-opacity=".65"/>
+            <stop offset="100%" stop-color="#ff8aa4" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="dollIris" cx="32%" cy="28%" r="80%">
+            <stop offset="0%" stop-color="#d1a878"/>
+            <stop offset="55%" stop-color="#8a5a3a"/>
+            <stop offset="100%" stop-color="#5a3a26"/>
+          </radialGradient>
+        </defs>
+
+        <ellipse cx="120" cy="365" rx="54" ry="9" fill="rgba(120,70,110,.16)"/>
+
+        <path d="M42,104 Q24,34 120,14 Q216,34 198,104
+                 Q218,154 204,235 Q184,196 172,148 Q164,112 120,104
+                 Q76,112 68,148 Q56,196 36,235 Q22,154 42,104 Z" fill="url(#dollHair)"/>
+
+        <rect x="99" y="330" width="17" height="36" rx="8" fill="url(#dollSkin)"/>
+        <rect x="124" y="330" width="17" height="36" rx="8" fill="url(#dollSkin)"/>
+        <g id="worn-shoes-default">
+          <ellipse cx="107" cy="368" rx="15" ry="7" fill="#fff0f7" stroke="#ff9fcc" stroke-width="2"/>
+          <ellipse cx="133" cy="368" rx="15" ry="7" fill="#fff0f7" stroke="#ff9fcc" stroke-width="2"/>
+        </g>
+
+        <path d="M80,160 Q52,182 47,224 Q46,236 57,239 Q68,236 65,223 Q69,186 96,168 Z" fill="url(#dollSkin)"/>
+        <path d="M160,160 Q188,182 193,224 Q194,236 183,239 Q172,236 175,223 Q171,186 144,168 Z" fill="url(#dollSkin)"/>
+
+        <path d="M90,206 Q120,192 150,206 L192,314
+                 Q180,328 168,314 Q160,328 148,314 Q140,328 130,314
+                 Q120,328 110,314 Q100,328 90,314 Q80,328 70,314
+                 Q60,328 48,314 Z" fill="url(#dollDress)"/>
+        <path d="M69,262 Q84,272 99,262 Q114,272 129,262 Q144,272 159,262 Q166,266 171,264" stroke="#fff" stroke-width="2" opacity=".4" fill="none"/>
+        <path d="M120,206 L111,316" stroke="#ffbcdc" stroke-width="2.5" opacity=".55" fill="none"/>
+        <path d="M120,206 L130,316" stroke="#ffbcdc" stroke-width="2.5" opacity=".55" fill="none"/>
+        <path d="M102,208 L80,302" stroke="#ffcfe6" stroke-width="2" opacity=".45" fill="none"/>
+        <path d="M138,208 L161,302" stroke="#ffcfe6" stroke-width="2" opacity=".45" fill="none"/>
+
+        <path d="M80,150 Q120,138 160,150 L150,209 Q120,198 90,209 Z" fill="url(#dollDress)"/>
+        <path d="M100,151 Q120,165 140,151" stroke="#fff" stroke-width="3" fill="none" opacity=".85"/>
+        <g id="worn-ribbon"></g>
+        <g id="worn-brooch"></g>
+        <g id="worn-necklace"></g>
+
+        <rect x="100" y="138" width="40" height="16" rx="8" fill="url(#dollSkin)"/>
+
+        <ellipse cx="120" cy="88" rx="56" ry="60" fill="url(#dollSkin)"/>
+        <ellipse cx="63" cy="94" rx="6.5" ry="9.5" fill="url(#dollSkin)"/>
+        <ellipse cx="177" cy="94" rx="6.5" ry="9.5" fill="url(#dollSkin)"/>
+
+        <ellipse cx="80" cy="112" rx="19" ry="12" fill="url(#dollCheek)"/>
+        <ellipse cx="160" cy="112" rx="19" ry="12" fill="url(#dollCheek)"/>
+
+        <path d="M82,72 Q94,62 109,70" stroke="#7a5230" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+        <path d="M131,70 Q146,62 158,72" stroke="#7a5230" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+
+        <g transform="translate(92,88)">
+          <path d="M-20,0 Q-10,-13 0,-12 Q10,-13 20,0 Q10,13 0,12 Q-10,13 -20,0 Z" fill="#fff"/>
+          <circle cx="1" cy="2" r="10.2" fill="url(#dollIris)"/>
+          <circle cx="1" cy="2" r="5.2" fill="#241a15"/>
+          <circle cx="-2.6" cy="-3.4" r="3.2" fill="#fff"/>
+          <circle cx="4.4" cy="5" r="1.5" fill="#fff" opacity=".9"/>
+          <path d="M-20,0 Q-10,-13 0,-12 Q10,-13 20,0" stroke="#3a2a20" stroke-width="2" fill="none"/>
+          <path d="M19,-1 L25,-6" stroke="#3a2a20" stroke-width="2" stroke-linecap="round"/>
+        </g>
+        <g transform="translate(148,88) scale(-1,1)">
+          <path d="M-20,0 Q-10,-13 0,-12 Q10,-13 20,0 Q10,13 0,12 Q-10,13 -20,0 Z" fill="#fff"/>
+          <circle cx="1" cy="2" r="10.2" fill="url(#dollIris)"/>
+          <circle cx="1" cy="2" r="5.2" fill="#241a15"/>
+          <circle cx="-2.6" cy="-3.4" r="3.2" fill="#fff"/>
+          <circle cx="4.4" cy="5" r="1.5" fill="#fff" opacity=".9"/>
+          <path d="M-20,0 Q-10,-13 0,-12 Q10,-13 20,0" stroke="#3a2a20" stroke-width="2" fill="none"/>
+          <path d="M19,-1 L25,-6" stroke="#3a2a20" stroke-width="2" stroke-linecap="round"/>
+        </g>
+
+        <path d="M116,108 Q119,112 122,109" stroke="#e0ab8a" stroke-width="1.6" fill="none" stroke-linecap="round" opacity=".55"/>
+        <path d="M108,123 Q120,130 132,123" stroke="#e0637a" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+
+        <path d="M64,76 Q56,20 120,11 Q184,20 176,76
+                 Q167,48 143,43 Q130,41 120,50 Q110,41 97,43 Q73,48 64,76 Z" fill="url(#dollHair)"/>
+        <path d="M68,74 Q59,104 72,130 Q79,100 83,77 Z" fill="url(#dollHair)"/>
+        <path d="M172,74 Q181,104 168,130 Q161,100 157,77 Z" fill="url(#dollHair)"/>
+        <path d="M119,18 Q113,3 122,-1 Q128,8 121,18 Z" fill="url(#dollHair)"/>
+        <path d="M83,34 Q120,19 157,34 Q121,28 83,34 Z" fill="#fff" opacity=".45"/>
+
+        <g id="worn-earrings"></g>
+        <g id="worn-hairclip"></g>
+        <g id="worn-tiara"></g>
+        <g id="worn-bracelet"></g>
+        <g id="worn-ring"></g>
+        <g id="worn-wand"></g>
+        <g id="worn-shoes"></g>
+
+        <g fill="#ffe066" opacity=".85">
+          <polygon points="0,-6 1.6,-2 6,-2 2.6,0.8 4,5 0,2.4 -4,5 -2.6,0.8 -6,-2 -1.6,-2" transform="translate(26,58)"/>
+          <polygon points="0,-5 1.3,-1.6 5,-1.6 2.2,0.7 3.3,4 0,2 -3.3,4 -2.2,0.7 -5,-1.6 -1.3,-1.6" transform="translate(214,114) scale(.8)"/>
+          <polygon points="0,-5 1.3,-1.6 5,-1.6 2.2,0.7 3.3,4 0,2 -3.3,4 -2.2,0.7 -5,-1.6 -1.3,-1.6" transform="translate(22,272) scale(.9)"/>
+        </g>
+      </svg>
+      <div class="avatar-slot" data-shape="tiara" style="left:50%;top:9%"></div>
+      <div class="avatar-slot" data-shape="hairclip" style="left:70%;top:18%"></div>
+      <div class="avatar-slot" data-shape="earrings" style="left:26%;top:30%"></div>
+      <div class="avatar-slot" data-shape="necklace" style="left:50%;top:44%"></div>
+      <div class="avatar-slot" data-shape="brooch" style="left:50%;top:50%"></div>
+      <div class="avatar-slot" data-shape="ribbon" style="left:50%;top:54%"></div>
+      <div class="avatar-slot" data-shape="bracelet" style="left:21%;top:58%"></div>
+      <div class="avatar-slot" data-shape="ring" style="left:24%;top:62%"></div>
+      <div class="avatar-slot" data-shape="wand" style="left:88%;top:49%"></div>
+      <div class="avatar-slot" data-shape="shoes" style="left:50%;top:97%"></div>
+    </div>
+    <div class="dressup-hint">したの宝箱からアイテムをタップして きせかえしよう！もう一度タップではずせるよ</div>
+  </div>
+
+  <div class="dressup dressup-mc" id="dressupMC">
+    <h2>⛏️ そうびコーナー ⛏️</h2>
+    <div class="avatar-stage">
+      <svg class="avatar-doll" viewBox="0 0 200 300">
+        <ellipse cx="100" cy="292" rx="55" ry="8" fill="rgba(0,0,0,.25)"/>
+        <g id="worn-mc-pickaxe"></g>
+        <rect x="72" y="190" width="26" height="75" fill="#3a2a1a"/>
+        <rect x="102" y="190" width="26" height="75" fill="#3a2a1a"/>
+        <rect x="70" y="258" width="30" height="14" fill="#1a1a1a"/>
+        <rect x="100" y="258" width="30" height="14" fill="#1a1a1a"/>
+        <rect x="38" y="95" width="30" height="95" fill="#c68863"/>
+        <rect x="132" y="95" width="30" height="95" fill="#c68863"/>
+        <rect x="38" y="95" width="30" height="28" fill="#3a8fd9"/>
+        <rect x="132" y="95" width="30" height="28" fill="#3a8fd9"/>
+        <rect x="65" y="95" width="70" height="95" fill="#3a8fd9"/>
+        <rect x="65" y="150" width="70" height="15" fill="#2d6cad"/>
+        <g id="worn-mc-chestplate"></g>
+        <rect x="70" y="25" width="60" height="60" fill="#c68863"/>
+        <rect x="82" y="48" width="9" height="9" fill="#2b2b2b"/>
+        <rect x="109" y="48" width="9" height="9" fill="#2b2b2b"/>
+        <rect x="88" y="65" width="24" height="5" fill="#8a5a3a"/>
+        <g id="worn-mc-helmet"></g>
+        <g id="worn-mc-sword"></g>
+        <g id="worn-mc-axe"></g>
+        <g id="worn-mc-shovel"></g>
+      </svg>
+      <div class="avatar-slot" data-shape="pickaxe" style="left:50%;top:18%"></div>
+      <div class="avatar-slot" data-shape="helmet" style="left:50%;top:9%"></div>
+      <div class="avatar-slot" data-shape="chestplate" style="left:50%;top:40%"></div>
+      <div class="avatar-slot" data-shape="sword" style="left:79%;top:42%"></div>
+      <div class="avatar-slot" data-shape="axe" style="left:21%;top:42%"></div>
+      <div class="avatar-slot" data-shape="shovel" style="left:76%;top:58%"></div>
+    </div>
+    <div class="dressup-hint">したのたからばこからアイテムをタップして そうびしよう！もう一度タップではずせるよ</div>
+  </div>
+
+  <div class="collection">
+    <h2 id="collectionTitle">✨ プリンセスの宝箱 ✨</h2>
+    <div class="count" id="collectCount">0/100しゅるい はっけん！</div>
+    <div class="item-grid" id="itemGrid"></div>
+  </div>
+
+  <div class="legend">
+    <h2>📖 かずのプリンセスずかん 📖</h2>
+    <div class="legend-grid" id="legendGrid"></div>
+  </div>
+
+  <footer>3もんれんぞくで せいかいすると ごほうびがもらえるよ 💫</footer>
+</div>
+
+<div class="modal-back" id="modalBack">
+  <div class="modal">
+    <h3>🎉 3もんれんぞく せいかい！ 🎉</h3>
+    <svg class="item-icon" id="modalIcon" viewBox="0 0 100 100"></svg>
+    <div class="item-name" id="modalName"></div>
+    <button id="modalClose">やったー！</button>
+  </div>
+</div>
+
+
+<!-- かずプリンセスSVGシンボル定義（世界の童話・オリジナルキャラクターのみ使用） -->
+<svg style="display:none">
+  <defs>
+    <linearGradient id="rgHair" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ff6b7a"/>
+      <stop offset="0.25" stop-color="#ffd23d"/>
+      <stop offset="0.5" stop-color="#57c98a"/>
+      <stop offset="0.75" stop-color="#4da6ff"/>
+      <stop offset="1" stop-color="#b37bff"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 1: 白雪姫 -->
+  <symbol id="pr-1" viewBox="0 0 100 100">
+    <path d="M22,52 Q18,14 50,12 Q82,14 78,52 Q80,28 50,24 Q20,28 22,52 Z" fill="#3a2e2e"/>
+    <path d="M31,79 Q50,73 69,79 L76,100 L24,100 Z" fill="#c94f5f"/>
+    <path d="M38,79 Q50,84 62,79" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+    <polygon points="20,30 26,26 26,34" fill="#c94f5f"/><polygon points="20,30 14,26 14,34" fill="#c94f5f"/>
+    <circle cx="20" cy="30" r="2.3" fill="#a83c4a"/>
+    <circle cx="50" cy="56" r="27" fill="#ffe0c2"/>
+    <circle cx="41" cy="57" r="2.8" fill="#5a3d3d"/><circle cx="59" cy="57" r="2.8" fill="#5a3d3d"/>
+    <circle cx="34" cy="64" r="4.2" fill="#ffb3c6" opacity=".55"/><circle cx="66" cy="64" r="4.2" fill="#ffb3c6" opacity=".55"/>
+    <path d="M43,66 Q50,71 57,66" stroke="#a35d5d" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    <path d="M37,25 L41,14 L50,23 L59,14 L63,25 Z" fill="#f4c14e" stroke="#e0a92e" stroke-width="1.5" stroke-linejoin="round"/>
+    <circle cx="50" cy="19" r="2.2" fill="#fff"/>
+    <circle cx="79" cy="79" r="17" fill="#fff" stroke="#ff6b7a" stroke-width="3"/>
+    <g transform="translate(79,79)">
+      <circle cx="0" cy="2" r="9" fill="#ff6b7a"/>
+      <line x1="0" y1="-7" x2="2" y2="-12" stroke="#8a5a3a" stroke-width="2" stroke-linecap="round"/>
+      <ellipse cx="5" cy="-10" rx="4" ry="2.2" fill="#57c98a" transform="rotate(-30 5 -10)"/>
+    </g>
+  </symbol>
+
+  <!-- 2: 人魚姫 -->
+  <symbol id="pr-2" viewBox="0 0 100 100">
+    <path d="M22,52 Q18,14 50,12 Q82,14 78,52 Q80,28 50,24 Q20,28 22,52 Z" fill="#2fb6c4"/>
+    <path d="M20,50 Q12,68 17,82 Q23,70 25,54 Z" fill="#2fb6c4"/>
+    <path d="M80,50 Q88,68 83,82 Q77,70 75,54 Z" fill="#2fb6c4"/>
+    <path d="M28,80 Q50,72 72,80 Q70,92 50,98 Q30,92 28,80 Z" fill="#3fcfe0"/>
+    <path d="M38,84 Q50,90 62,84" fill="none" stroke="#fff" stroke-width="1.5" opacity=".6"/>
+    <circle cx="23" cy="45" r="2.6" fill="#fff8e8" stroke="#dfe8ea" stroke-width="1"/>
+    <circle cx="50" cy="56" r="27" fill="#ffe0c2"/>
+    <circle cx="41" cy="57" r="2.8" fill="#5a3d3d"/><circle cx="59" cy="57" r="2.8" fill="#5a3d3d"/>
+    <circle cx="34" cy="64" r="4.2" fill="#ffb3c6" opacity=".55"/><circle cx="66" cy="64" r="4.2" fill="#ffb3c6" opacity=".55"/>
+    <path d="M43,66 Q50,71 57,66" stroke="#a35d5d" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    <path d="M37,25 L41,14 L50,23 L59,14 L63,25 Z" fill="#f4c14e" stroke="#e0a92e" stroke-width="1.5" stroke-linejoin="round"/>
+    <circle cx="50" cy="19" r="2.2" fill="#fff"/>
+    <circle cx="79" cy="79" r="17" fill="#fff" stroke="#4da6ff" stroke-width="3"/>
+    <g transform="translate(79,79)">
+      <path d="M0,10 Q-10,4 -9,-6 Q-5,-9 0,-9 Q5,-9 9,-6 Q10,4 0,10 Z" fill="#4da6ff"/>
+      <path d="M0,-9 L0,9 M-5,-8 L-3,9 M5,-8 L3,9" stroke="#ffffff" stroke-width="1" opacity=".7"/>
+    </g>
+  </symbol>
+
+  <!-- 3: シンデレラ -->
+  <symbol id="pr-3" viewBox="0 0 100 100">
+    <path d="M22,52 Q18,14 50,12 Q82,14 78,52 Q80,28 50,24 Q20,28 22,52 Z" fill="#e8c168"/>
+    <path d="M31,79 Q50,73 69,79 L76,100 L24,100 Z" fill="#f0d9a8"/>
+    <path d="M31,79 Q50,73 69,79" fill="none" stroke="#d9b463" stroke-width="2"/>
+    <circle cx="26" cy="34" r="3" fill="#8fd0ff" stroke="#5fb0e6" stroke-width="1"/>
+    <circle cx="50" cy="56" r="27" fill="#ffe0c2"/>
+    <circle cx="41" cy="57" r="2.8" fill="#5a3d3d"/><circle cx="59" cy="57" r="2.8" fill="#5a3d3d"/>
+    <circle cx="34" cy="64" r="4.2" fill="#ffb3c6" opacity=".55"/><circle cx="66" cy="64" r="4.2" fill="#ffb3c6" opacity=".55"/>
+    <path d="M43,66 Q50,71 57,66" stroke="#a35d5d" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    <path d="M37,25 L41,14 L50,23 L59,14 L63,25 Z" fill="#f4c14e" stroke="#e0a92e" stroke-width="1.5" stroke-linejoin="round"/>
+    <circle cx="50" cy="19" r="2.2" fill="#fff"/>
+    <circle cx="79" cy="79" r="17" fill="#fff" stroke="#ffa13d" stroke-width="3"/>
+    <g transform="translate(79,79)">
+      <ellipse cx="0" cy="2" rx="10" ry="8" fill="#ffa13d"/>
+      <path d="M-6,2 Q-6,-6 0,-6 Q6,-6 6,2" fill="none" stroke="#e08a28" stroke-width="1.2" opacity=".6"/>
+      <line x1="0" y1="-6" x2="0" y2="-11" stroke="#57c98a" stroke-width="2.4" stroke-linecap="round"/>
+    </g>
+  </symbol>
+
+  <!-- 4: いばら姫 -->
+  <symbol id="pr-4" viewBox="0 0 100 100">
+    <path d="M22,52 Q18,14 50,12 Q82,14 78,52 Q80,28 50,24 Q20,28 22,52 Z" fill="#8a4b3b"/>
+    <path d="M31,79 Q50,73 69,79 L76,100 L24,100 Z" fill="#b5749a"/>
+    <path d="M31,79 Q50,73 69,79" fill="none" stroke="#8a5478" stroke-width="2"/>
+    <circle cx="50" cy="56" r="27" fill="#ffe0c2"/>
+    <circle cx="41" cy="57" r="2.8" fill="#5a3d3d"/><circle cx="59" cy="57" r="2.8" fill="#5a3d3d"/>
+    <circle cx="34" cy="64" r="4.2" fill="#ffb3c6" opacity=".55"/><circle cx="66" cy="64" r="4.2" fill="#ffb3c6" opacity=".55"/>
+    <path d="M43,66 Q50,71 57,66" stroke="#a35d5d" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    <path d="M37,25 L41,14 L50,23 L59,14 L63,25 Z" fill="#f4c14e" stroke="#e0a92e" stroke-width="1.5" stroke-linejoin="round"/>
+    <circle cx="50" cy="19" r="2.2" fill="#fff"/>
+    <rect x="24" y="30" width="52" height="5" rx="2.5" fill="#b37bff"/>
+    <circle cx="50" cy="30" r="3" fill="#c79bff" stroke="#8a4bcf" stroke-width="1"/>
+    <circle cx="79" cy="79" r="17" fill="#fff" stroke="#b37bff" stroke-width="3"/>
+    <g transform="translate(79,79)">
+      <circle cx="0" cy="0" r="4" fill="#b37bff"/>
+      <circle cx="-4" cy="2" r="3.4" fill="#c79bff"/>
+      <circle cx="4" cy="2" r="3.4" fill="#c79bff"/>
+      <circle cx="0" cy="4" r="3.4" fill="#a561ff"/>
+      <line x1="0" y1="7" x2="0" y2="13" stroke="#57c98a" stroke-width="2" stroke-linecap="round"/>
+      <polygon points="0,10 2,12 0,12" fill="#3f8a5c"/>
+    </g>
+  </symbol>
+
+  <!-- 5: さくら姫 -->
+  <symbol id="pr-5" viewBox="0 0 100 100">
+    <path d="M22,52 Q18,14 50,12 Q82,14 78,52 Q80,28 50,24 Q20,28 22,52 Z" fill="#ffb6d9"/>
+    <path d="M31,79 Q50,73 69,79 L76,100 L24,100 Z" fill="#ffd3ea"/>
+    <path d="M31,79 Q50,73 69,79" fill="none" stroke="#ff9ecb" stroke-width="2"/>
+    <polygon points="74,32 80,28 80,36" fill="#ff9ecb"/><polygon points="74,32 68,28 68,36" fill="#ff9ecb"/>
+    <circle cx="74" cy="32" r="2.2" fill="#e0709e"/>
+    <circle cx="50" cy="56" r="27" fill="#ffe0c2"/>
+    <circle cx="41" cy="57" r="2.8" fill="#5a3d3d"/><circle cx="59" cy="57" r="2.8" fill="#5a3d3d"/>
+    <circle cx="34" cy="64" r="4.2" fill="#ffb3c6" opacity=".55"/><circle cx="66" cy="64" r="4.2" fill="#ffb3c6" opacity=".55"/>
+    <path d="M43,66 Q50,71 57,66" stroke="#a35d5d" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    <path d="M37,25 L41,14 L50,23 L59,14 L63,25 Z" fill="#f4c14e" stroke="#e0a92e" stroke-width="1.5" stroke-linejoin="round"/>
+    <circle cx="50" cy="19" r="2.2" fill="#fff"/>
+    <circle cx="79" cy="79" r="17" fill="#fff" stroke="#ff7fc4" stroke-width="3"/>
+    <g transform="translate(79,79)" fill="#ff7fc4">
+      <ellipse cx="0" cy="-6" rx="3" ry="4"/>
+      <ellipse cx="5.7" cy="-1.8" rx="3" ry="4" transform="rotate(72 5.7 -1.8)"/>
+      <ellipse cx="3.5" cy="5" rx="3" ry="4" transform="rotate(144 3.5 5)"/>
+      <ellipse cx="-3.5" cy="5" rx="3" ry="4" transform="rotate(216 -3.5 5)"/>
+      <ellipse cx="-5.7" cy="-1.8" rx="3" ry="4" transform="rotate(288 -5.7 -1.8)"/>
+      <circle cx="0" cy="0" r="2" fill="#ffe066"/>
+    </g>
+  </symbol>
+
+  <!-- 6: ラプンツェル -->
+  <symbol id="pr-6" viewBox="0 0 100 100">
+    <path d="M22,52 Q18,14 50,12 Q82,14 78,52 Q80,28 50,24 Q20,28 22,52 Z" fill="#f0cf5a"/>
+    <path d="M22,50 Q12,70 19,92 Q26,72 27,54 Z" fill="#f0cf5a"/>
+    <path d="M78,50 Q88,70 81,92 Q74,72 73,54 Z" fill="#f0cf5a"/>
+    <path d="M31,79 Q50,73 69,79 L76,100 L24,100 Z" fill="#8fd9c4"/>
+    <path d="M31,79 Q50,73 69,79" fill="none" stroke="#5cbfa3" stroke-width="2"/>
+    <circle cx="23" cy="87" r="2.6" fill="#ffb6d9"/>
+    <circle cx="50" cy="56" r="27" fill="#ffe0c2"/>
+    <circle cx="41" cy="57" r="2.8" fill="#5a3d3d"/><circle cx="59" cy="57" r="2.8" fill="#5a3d3d"/>
+    <circle cx="34" cy="64" r="4.2" fill="#ffb3c6" opacity=".55"/><circle cx="66" cy="64" r="4.2" fill="#ffb3c6" opacity=".55"/>
+    <path d="M43,66 Q50,71 57,66" stroke="#a35d5d" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    <path d="M37,25 L41,14 L50,23 L59,14 L63,25 Z" fill="#f4c14e" stroke="#e0a92e" stroke-width="1.5" stroke-linejoin="round"/>
+    <circle cx="50" cy="19" r="2.2" fill="#fff"/>
+    <circle cx="79" cy="79" r="17" fill="#fff" stroke="#ffd23d" stroke-width="3"/>
+    <g transform="translate(79,79)">
+      <path d="M0,-11 Q5,-7 0,-3 Q-5,1 0,5 Q5,9 0,13" fill="none" stroke="#ffd23d" stroke-width="5" stroke-linecap="round"/>
+      <path d="M0,-11 Q5,-7 0,-3 Q-5,1 0,5 Q5,9 0,13" fill="none" stroke="#fff0b8" stroke-width="1.5" stroke-linecap="round" opacity=".7"/>
+    </g>
+  </symbol>
+
+  <!-- 7: かぐや姫 -->
+  <symbol id="pr-7" viewBox="0 0 100 100">
+    <path d="M22,52 Q18,14 50,12 Q82,14 78,52 Q80,28 50,24 Q20,28 22,52 Z" fill="#2b2320"/>
+    <path d="M31,80 Q50,86 69,80 L69,100 L31,100 Z" fill="#b98fc2"/>
+    <rect x="42" y="86" width="16" height="14" fill="#e0575a" opacity=".85"/>
+    <circle cx="50" cy="56" r="27" fill="#ffe0c2"/>
+    <path d="M42,80 L50,90 L58,80 Z" fill="#e0575a"/>
+    <circle cx="41" cy="57" r="2.8" fill="#5a3d3d"/><circle cx="59" cy="57" r="2.8" fill="#5a3d3d"/>
+    <circle cx="34" cy="64" r="4.2" fill="#ffb3c6" opacity=".55"/><circle cx="66" cy="64" r="4.2" fill="#ffb3c6" opacity=".55"/>
+    <path d="M43,66 Q50,71 57,66" stroke="#a35d5d" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    <path d="M37,25 L41,14 L50,23 L59,14 L63,25 Z" fill="#f4c14e" stroke="#e0a92e" stroke-width="1.5" stroke-linejoin="round"/>
+    <circle cx="50" cy="19" r="2.2" fill="#fff"/>
+    <circle cx="33" cy="29" r="3" fill="#ff9ecb"/>
+    <circle cx="79" cy="79" r="17" fill="#fff" stroke="#57c98a" stroke-width="3"/>
+    <g transform="translate(79,79)">
+      <rect x="-3.5" y="-12" width="7" height="11" rx="3" fill="#57c98a"/>
+      <rect x="-3.5" y="0" width="7" height="12" rx="3" fill="#4bb87c"/>
+      <line x1="-3.5" y1="-1" x2="3.5" y2="-1" stroke="#2f7a52" stroke-width="1.4"/>
+    </g>
+  </symbol>
+
+  <!-- 8: こおりの姫 -->
+  <symbol id="pr-8" viewBox="0 0 100 100">
+    <path d="M22,52 Q18,14 50,12 Q82,14 78,52 Q80,28 50,24 Q20,28 22,52 Z" fill="#cfe9f5"/>
+    <path d="M31,79 Q50,73 69,79 L76,100 L24,100 Z" fill="#d7f3fb"/>
+    <path d="M31,79 Q50,73 69,79" fill="none" stroke="#8fd9ec" stroke-width="2"/>
+    <circle cx="50" cy="56" r="27" fill="#ffe0c2"/>
+    <circle cx="41" cy="57" r="2.8" fill="#5a3d3d"/><circle cx="59" cy="57" r="2.8" fill="#5a3d3d"/>
+    <circle cx="34" cy="64" r="4.2" fill="#ffb3c6" opacity=".55"/><circle cx="66" cy="64" r="4.2" fill="#ffb3c6" opacity=".55"/>
+    <path d="M43,66 Q50,71 57,66" stroke="#a35d5d" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    <path d="M37,25 L41,14 L50,23 L59,14 L63,25 Z" fill="#f4c14e" stroke="#e0a92e" stroke-width="1.5" stroke-linejoin="round"/>
+    <polygon points="50,12 53,4 56,12" fill="#bfeeff"/><polygon points="41,14 44,6 47,14" fill="#bfeeff"/><polygon points="53,14 56,6 59,14" fill="#bfeeff"/>
+    <circle cx="50" cy="19" r="2.2" fill="#fff"/>
+    <circle cx="79" cy="79" r="17" fill="#fff" stroke="#4dd9e8" stroke-width="3"/>
+    <g transform="translate(79,79)" stroke="#4dd9e8" stroke-width="2" stroke-linecap="round">
+      <line x1="0" y1="-11" x2="0" y2="11"/>
+      <line x1="-9.5" y1="-5.5" x2="9.5" y2="5.5"/>
+      <line x1="-9.5" y1="5.5" x2="9.5" y2="-5.5"/>
+    </g>
+  </symbol>
+
+  <!-- 9: ほしの姫 -->
+  <symbol id="pr-9" viewBox="0 0 100 100">
+    <path d="M22,52 Q18,14 50,12 Q82,14 78,52 Q80,28 50,24 Q20,28 22,52 Z" fill="#4a3f7a"/>
+    <path d="M31,79 Q50,73 69,79 L76,100 L24,100 Z" fill="#3f3570"/>
+    <circle cx="35" cy="88" r="1.3" fill="#fff"/><circle cx="60" cy="92" r="1" fill="#fff"/><circle cx="48" cy="85" r="1" fill="#fff"/>
+    <circle cx="50" cy="56" r="27" fill="#ffe0c2"/>
+    <circle cx="41" cy="57" r="2.8" fill="#5a3d3d"/><circle cx="59" cy="57" r="2.8" fill="#5a3d3d"/>
+    <circle cx="34" cy="64" r="4.2" fill="#ffb3c6" opacity=".55"/><circle cx="66" cy="64" r="4.2" fill="#ffb3c6" opacity=".55"/>
+    <path d="M43,66 Q50,71 57,66" stroke="#a35d5d" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    <path d="M37,25 L41,14 L50,23 L59,14 L63,25 Z" fill="#f4c14e" stroke="#e0a92e" stroke-width="1.5" stroke-linejoin="round"/>
+    <circle cx="50" cy="19" r="2.2" fill="#fff"/>
+    <polygon points="30,32 32,36 36,36 33,39 34,43 30,41 26,43 27,39 24,36 28,36" fill="#caa23d"/>
+    <circle cx="79" cy="79" r="17" fill="#fff" stroke="#caa23d" stroke-width="3"/>
+    <g transform="translate(79,79)">
+      <polygon points="0,-11 2.6,-3.4 10.5,-3.4 4,1.3 6.5,9 0,4 -6.5,9 -4,1.3 -10.5,-3.4 -2.6,-3.4" fill="#caa23d"/>
+    </g>
+  </symbol>
+
+  <!-- 10: にじいろ姫 -->
+  <symbol id="pr-10" viewBox="0 0 100 100">
+    <path d="M22,52 Q18,14 50,12 Q82,14 78,52 Q80,28 50,24 Q20,28 22,52 Z" fill="url(#rgHair)"/>
+    <path d="M31,79 Q50,73 69,79 L76,100 L24,100 Z" fill="url(#rgHair)"/>
+    <path d="M31,79 Q50,73 69,79" fill="none" stroke="#fff" stroke-width="2"/>
+    <circle cx="50" cy="56" r="27" fill="#ffe0c2"/>
+    <circle cx="41" cy="57" r="2.8" fill="#5a3d3d"/><circle cx="59" cy="57" r="2.8" fill="#5a3d3d"/>
+    <circle cx="34" cy="64" r="4.2" fill="#ffb3c6" opacity=".55"/><circle cx="66" cy="64" r="4.2" fill="#ffb3c6" opacity=".55"/>
+    <path d="M43,66 Q50,71 57,66" stroke="#a35d5d" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    <path d="M37,25 L41,14 L50,23 L59,14 L63,25 Z" fill="#f4c14e" stroke="#e0a92e" stroke-width="1.5" stroke-linejoin="round"/>
+    <circle cx="50" cy="19" r="2.2" fill="#fff"/>
+    <circle cx="79" cy="79" r="17" fill="#fff" stroke="#b37bff" stroke-width="3"/>
+    <g transform="translate(79,84)" fill="none" stroke-width="3" stroke-linecap="round">
+      <path d="M-11,0 A11,11 0 0 1 11,0" stroke="#ff6b7a"/>
+      <path d="M-8,0 A8,8 0 0 1 8,0" stroke="#ffd23d"/>
+      <path d="M-5,0 A5,5 0 0 1 5,0" stroke="#4da6ff"/>
+    </g>
+  </symbol>
+</svg>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- 数字と色の対応表 ---------- */
+  const NUM_COLORS = {
+    1:{name:"あか",    hex:"#ff6b7a"},
+    2:{name:"あお",    hex:"#4da6ff"},
+    3:{name:"オレンジ", hex:"#ffa13d"},
+    4:{name:"むらさき", hex:"#b37bff"},
+    5:{name:"ピンク",  hex:"#ff7fc4"},
+    6:{name:"きいろ",  hex:"#ffd23d"},
+    7:{name:"みどり",  hex:"#57c98a"},
+    8:{name:"みずいろ", hex:"#4dd9e8"},
+    9:{name:"きんいろ", hex:"#caa23d"},
+    10:{name:"にじいろ", hex:"linear-gradient(135deg,#ff6b7a,#ffd23d,#57c98a,#4da6ff,#b37bff)"}
+  };
+
+  function chipBg(n){
+    const c = NUM_COLORS[n];
+    return c.hex.startsWith("linear") ? c.hex : c.hex;
+  }
+
+  /* ---------- 数字とプリンセスの対応表 ---------- */
+  const PRINCESSES = {
+    1:{name:"白雪姫",     icon:"pr-1"},
+    2:{name:"人魚姫",     icon:"pr-2"},
+    3:{name:"シンデレラ",  icon:"pr-3"},
+    4:{name:"いばら姫",   icon:"pr-4"},
+    5:{name:"さくら姫",   icon:"pr-5"},
+    6:{name:"ラプンツェル", icon:"pr-6"},
+    7:{name:"かぐや姫",   icon:"pr-7"},
+    8:{name:"こおりの姫", icon:"pr-8"},
+    9:{name:"ほしの姫",   icon:"pr-9"},
+    10:{name:"にじいろ姫", icon:"pr-10"}
+  };
+
+  /* ---------- ごほうびアイテム（10しゅるいの宝石 × 10しゅるいの形 = 100アイテム） ---------- */
+  const GEMS = [
+    {id:"ruby",       name:"ルビー",       hex:"#ff6b7a"},
+    {id:"sapphire",   name:"サファイア",   hex:"#4da6ff"},
+    {id:"amber",      name:"アンバー",     hex:"#ffa13d"},
+    {id:"amethyst",   name:"アメジスト",   hex:"#b37bff"},
+    {id:"rosequartz", name:"ローズクォーツ", hex:"#ff7fc4"},
+    {id:"citrine",    name:"シトリン",     hex:"#ffd23d"},
+    {id:"emerald",    name:"エメラルド",   hex:"#57c98a"},
+    {id:"aqua",       name:"アクアマリン", hex:"#4dd9e8"},
+    {id:"gold",       name:"ゴールド",     hex:"#caa23d"},
+    {id:"rainbow",    name:"レインボー",   hex:null}
+  ];
+
+  const SHAPES = [
+    {id:"necklace", name:"ネックレス", svg:c=>`
+      <path d="M20,22 Q50,68 80,22" fill="none" stroke="#f4c14e" stroke-width="6" stroke-linecap="round"/>
+      <circle cx="20" cy="22" r="5" fill="#f4c14e"/><circle cx="80" cy="22" r="5" fill="#f4c14e"/>
+      <polygon points="50,58 62,72 50,88 38,72" fill="${c}" stroke="rgba(0,0,0,.22)" stroke-width="2"/>
+      <polygon points="50,58 62,72 50,72" fill="#fff" opacity=".5"/>`},
+    {id:"ring", name:"ゆびわ", svg:c=>`
+      <circle cx="50" cy="62" r="24" fill="none" stroke="#f4c14e" stroke-width="9"/>
+      <polygon points="50,20 62,36 50,48 38,36" fill="${c}" stroke="rgba(0,0,0,.22)" stroke-width="2"/>
+      <polygon points="50,20 62,36 50,36" fill="#fff" opacity=".5"/>`},
+    {id:"tiara", name:"ティアラ", svg:c=>`
+      <path d="M15,70 L15,55 L32,68 L50,30 L68,68 L85,55 L85,70 Z" fill="#f4c14e" stroke="#e0a92e" stroke-width="2"/>
+      <circle cx="50" cy="32" r="7" fill="${c}"/><circle cx="27" cy="60" r="5" fill="${c}" opacity=".85"/>
+      <circle cx="73" cy="60" r="5" fill="${c}" opacity=".85"/><rect x="14" y="70" width="72" height="8" rx="3" fill="#f4c14e"/>`},
+    {id:"wand", name:"まほうのつえ", svg:c=>`
+      <line x1="25" y1="85" x2="65" y2="45" stroke="#e0a92e" stroke-width="7" stroke-linecap="round"/>
+      <g transform="translate(70,32)"><polygon points="0,-18 5,-5 18,0 5,5 0,18 -5,5 -18,0 -5,-5" fill="${c}" stroke="rgba(0,0,0,.2)" stroke-width="2"/></g>
+      <circle cx="30" cy="80" r="3" fill="${c}"/>`},
+    {id:"ribbon", name:"リボン", svg:c=>`
+      <polygon points="50,50 15,25 15,75" fill="${c}" stroke="rgba(0,0,0,.2)" stroke-width="2"/>
+      <polygon points="50,50 85,25 85,75" fill="${c}" stroke="rgba(0,0,0,.2)" stroke-width="2"/>
+      <circle cx="50" cy="50" r="9" fill="#fff8ec" stroke="rgba(0,0,0,.2)" stroke-width="2"/>`},
+    {id:"shoes", name:"くつ", svg:c=>`
+      <path d="M22,74 L22,46 Q22,40 29,40 Q40,40 47,45 Q66,58 86,63 Q93,65 91,72 Q89,78 80,78 L26,78 Q22,78 22,74 Z" fill="${c}" stroke="rgba(0,0,0,.25)" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M22,70 L91,70 Q92,78 82,79 L26,79 Q21,79 22,70 Z" fill="#fff" opacity=".65"/>
+      <circle cx="42" cy="49" r="4" fill="#fff"/><circle cx="42" cy="49" r="4" fill="none" stroke="${c}" stroke-width="1.5"/>`},
+    {id:"earrings", name:"イヤリング", svg:c=>`
+      <g transform="translate(30,28)"><circle cx="0" cy="0" r="4" fill="#f4c14e"/><line x1="0" y1="4" x2="0" y2="14" stroke="#f4c14e" stroke-width="2"/>
+      <polygon points="0,14 7,27 0,38 -7,27" fill="${c}" stroke="rgba(0,0,0,.2)" stroke-width="1.5"/></g>
+      <g transform="translate(70,28)"><circle cx="0" cy="0" r="4" fill="#f4c14e"/><line x1="0" y1="4" x2="0" y2="14" stroke="#f4c14e" stroke-width="2"/>
+      <polygon points="0,14 7,27 0,38 -7,27" fill="${c}" stroke="rgba(0,0,0,.2)" stroke-width="1.5"/></g>`},
+    {id:"bracelet", name:"ブレスレット", svg:c=>`
+      <ellipse cx="50" cy="55" rx="32" ry="20" fill="none" stroke="#f4c14e" stroke-width="7"/>
+      <circle cx="50" cy="35" r="6" fill="${c}"/><circle cx="22" cy="58" r="5" fill="${c}" opacity=".85"/><circle cx="78" cy="58" r="5" fill="${c}" opacity=".85"/>`},
+    {id:"brooch", name:"ブローチ", svg:c=>`
+      <g fill="${c}"><ellipse cx="50" cy="30" rx="8" ry="12"/><ellipse cx="50" cy="70" rx="8" ry="12"/><ellipse cx="30" cy="50" rx="12" ry="8"/><ellipse cx="70" cy="50" rx="12" ry="8"/></g>
+      <circle cx="50" cy="50" r="10" fill="#f4c14e" stroke="#e0a92e" stroke-width="2"/>`},
+    {id:"hairclip", name:"ヘアクリップ", svg:c=>`
+      <rect x="18" y="46" width="64" height="10" rx="5" fill="${c}" stroke="rgba(0,0,0,.2)" stroke-width="1.5"/>
+      <circle cx="50" cy="51" r="9" fill="#fff8ec" stroke="rgba(0,0,0,.15)" stroke-width="1.5"/><circle cx="50" cy="51" r="4" fill="${c}"/>`},
+    {id:"crown", name:"おうかん", svg:c=>`
+      <path d="M15,72 L15,55 L28,66 L38,40 L50,58 L62,40 L72,66 L85,55 L85,72 Z" fill="#f4c14e" stroke="#e0a92e" stroke-width="2"/>
+      <circle cx="50" cy="60" r="6" fill="${c}"/><circle cx="30" cy="64" r="4" fill="${c}" opacity=".8"/><circle cx="70" cy="64" r="4" fill="${c}" opacity=".8"/>
+      <rect x="14" y="72" width="72" height="8" rx="3" fill="#f4c14e"/>`},
+    {id:"locket", name:"ロケット", svg:c=>`
+      <path d="M20,20 Q50,55 80,20" fill="none" stroke="#f4c14e" stroke-width="5" stroke-linecap="round"/>
+      <circle cx="20" cy="20" r="4" fill="#f4c14e"/><circle cx="80" cy="20" r="4" fill="#f4c14e"/>
+      <ellipse cx="50" cy="65" rx="22" ry="26" fill="${c}" stroke="#f4c14e" stroke-width="3"/>
+      <line x1="50" y1="39" x2="50" y2="91" stroke="#f4c14e" stroke-width="1.5" opacity=".6"/>
+      <circle cx="50" cy="65" r="6" fill="#fff" opacity=".5"/>`},
+    {id:"sash", name:"たすき", svg:c=>`
+      <polygon points="20,15 45,15 75,90 50,90" fill="${c}" stroke="rgba(0,0,0,.15)" stroke-width="1.5"/>
+      <circle cx="35" cy="20" r="10" fill="${c}"/><circle cx="35" cy="20" r="4" fill="#fff8ec"/>`},
+    {id:"fan", name:"せんす", svg:c=>`
+      <path d="M50,90 L15,35 A38,38 0 0 1 85,35 Z" fill="${c}" stroke="rgba(0,0,0,.15)" stroke-width="1.5"/>
+      <line x1="50" y1="90" x2="25" y2="38" stroke="#fff" stroke-width="1.2" opacity=".5"/>
+      <line x1="50" y1="90" x2="50" y2="32" stroke="#fff" stroke-width="1.2" opacity=".5"/>
+      <line x1="50" y1="90" x2="75" y2="38" stroke="#fff" stroke-width="1.2" opacity=".5"/>
+      <circle cx="50" cy="90" r="5" fill="#f4c14e"/>`},
+    {id:"mirror", name:"てかがみ", svg:c=>`
+      <circle cx="50" cy="38" r="26" fill="none" stroke="#f4c14e" stroke-width="7"/>
+      <circle cx="50" cy="38" r="20" fill="${c}" opacity=".55"/>
+      <rect x="46" y="60" width="8" height="32" rx="3" fill="#f4c14e"/>`},
+    {id:"parasol", name:"ひがさ", svg:c=>`
+      <path d="M15,45 Q50,10 85,45 Z" fill="${c}" stroke="rgba(0,0,0,.15)" stroke-width="1.5"/>
+      <line x1="50" y1="45" x2="50" y2="90" stroke="#8a5a3a" stroke-width="3"/>
+      <path d="M50,90 Q58,90 58,82" fill="none" stroke="#8a5a3a" stroke-width="3"/>
+      <line x1="50" y1="45" x2="32" y2="42" stroke="#fff" stroke-width="1" opacity=".5"/>
+      <line x1="50" y1="45" x2="68" y2="42" stroke="#fff" stroke-width="1" opacity=".5"/>`},
+    {id:"kanzashi", name:"かんざし", svg:c=>`
+      <line x1="30" y1="15" x2="55" y2="80" stroke="#f4c14e" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="30" cy="15" r="7" fill="${c}"/>
+      <circle cx="35" cy="30" r="3" fill="${c}" opacity=".8"/><circle cx="40" cy="45" r="3" fill="${c}" opacity=".6"/>`},
+    {id:"gloves", name:"てぶくろ", svg:c=>`
+      <path d="M35,90 L35,45 Q35,30 45,30 Q50,30 50,40 L50,25 Q50,15 58,15 Q64,15 64,25 L64,40 Q64,32 70,32 Q76,32 76,42 L76,90 Z" fill="${c}" stroke="rgba(0,0,0,.2)" stroke-width="1.5"/>`},
+    {id:"cape", name:"マント", svg:c=>`
+      <path d="M30,20 Q50,10 70,20 L85,88 Q50,75 15,88 Z" fill="${c}" stroke="rgba(0,0,0,.2)" stroke-width="1.5"/>
+      <circle cx="50" cy="18" r="5" fill="#f4c14e"/>`},
+    {id:"purse", name:"ハンドバッグ", svg:c=>`
+      <path d="M25,45 L75,45 L70,88 L30,88 Z" fill="${c}" stroke="rgba(0,0,0,.2)" stroke-width="1.5"/>
+      <path d="M35,45 Q35,22 50,22 Q65,22 65,45" fill="none" stroke="#f4c14e" stroke-width="4"/>
+      <circle cx="50" cy="60" r="4" fill="#f4c14e"/>`},
+    {id:"spellbook", name:"まほうのほん", svg:c=>`
+      <path d="M22,20 L78,20 Q82,20 82,25 L82,80 Q82,85 78,85 L22,85 Q18,85 18,80 L18,25 Q18,20 22,20 Z" fill="${c}" stroke="rgba(0,0,0,.25)" stroke-width="1.5"/>
+      <line x1="50" y1="20" x2="50" y2="85" stroke="rgba(0,0,0,.2)" stroke-width="1.5"/>
+      <polygon points="50,42 58,52 50,62 42,52" fill="#f4c14e"/>`},
+    {id:"key", name:"まほうのカギ", svg:c=>`
+      <circle cx="30" cy="30" r="14" fill="none" stroke="${c}" stroke-width="7"/>
+      <rect x="28" y="42" width="6" height="45" fill="${c}"/>
+      <rect x="34" y="65" width="10" height="6" fill="${c}"/>
+      <rect x="34" y="78" width="14" height="6" fill="${c}"/>`},
+    {id:"starcharm", name:"ほしのチャーム", svg:c=>`
+      <path d="M25,18 Q50,32 75,18" fill="none" stroke="#f4c14e" stroke-width="4" stroke-linecap="round"/>
+      <polygon points="50,35 58,55 80,55 62,68 69,90 50,77 31,90 38,68 20,55 42,55" fill="${c}" stroke="rgba(0,0,0,.15)" stroke-width="1.5"/>`},
+    {id:"heartcharm", name:"ハートのチャーム", svg:c=>`
+      <path d="M25,18 Q50,32 75,18" fill="none" stroke="#f4c14e" stroke-width="4" stroke-linecap="round"/>
+      <path d="M50,90 C20,65 20,40 38,32 C46,28 50,38 50,42 C50,38 54,28 62,32 C80,40 80,65 50,90 Z" fill="${c}" stroke="rgba(0,0,0,.15)" stroke-width="1.5"/>`},
+    {id:"flowercrown", name:"はなかんむり", svg:c=>`
+      <path d="M15,55 Q50,75 85,55 Q80,40 50,45 Q20,40 15,55 Z" fill="#7fc47f" opacity=".5"/>
+      <g fill="${c}"><circle cx="25" cy="50" r="7"/><circle cx="42" cy="42" r="8"/><circle cx="58" cy="42" r="8"/><circle cx="75" cy="50" r="7"/><circle cx="50" cy="38" r="8"/></g>
+      <circle cx="50" cy="38" r="3" fill="#fff8d0"/>`}
+  ];
+
+  const PRINCESS_EQUIP_SHAPES = ["necklace","ring","tiara","wand","ribbon","shoes","earrings","bracelet","brooch","hairclip"];
+
+  const RAINBOW_STOPS = `<stop offset="0" stop-color="#ff6b7a"/><stop offset=".25" stop-color="#ffd23d"/><stop offset=".5" stop-color="#57c98a"/><stop offset=".75" stop-color="#4da6ff"/><stop offset="1" stop-color="#b37bff"/>`;
+
+  /* ---------- 陽太モード専用：マイクラ素材 × アイテム（100種） ---------- */
+  const MATERIALS_MC = [
+    {id:"diamond",   name:"ダイヤモンド",   hex:"#5eead4"},
+    {id:"gold",      name:"きん",          hex:"#e8b923"},
+    {id:"iron",      name:"てつ",          hex:"#d8d8d8"},
+    {id:"emerald",   name:"エメラルド",     hex:"#17a854"},
+    {id:"redstone",  name:"レッドストーン", hex:"#c41e1e"},
+    {id:"lapis",     name:"ラピスラズリ",   hex:"#2952a3"},
+    {id:"netherite", name:"ネザライト",     hex:"#4a3f4a"},
+    {id:"coal",      name:"せきたん",       hex:"#2b2b2b"},
+    {id:"quartz",    name:"クォーツ",       hex:"#f0e8d8"},
+    {id:"amethyst",  name:"アメジスト",     hex:"#9c6bcf"}
+  ];
+
+  const SHAPES_MC = [
+    {id:"ingot", name:"インゴット", svg:c=>`
+      <path d="M20,55 L30,40 L70,40 L80,55 L80,65 L20,65 Z" fill="${c}" stroke="rgba(0,0,0,.3)" stroke-width="2"/>`},
+    {id:"sword", name:"けん", svg:c=>`
+      <rect x="46" y="15" width="8" height="45" fill="${c}" stroke="rgba(0,0,0,.3)" stroke-width="1.5"/>
+      <rect x="35" y="60" width="30" height="8" fill="#8b5a2b"/>
+      <rect x="46" y="68" width="8" height="18" fill="#5a3a1a"/>`},
+    {id:"pickaxe", name:"つるはし", svg:c=>`
+      <path d="M20,25 Q50,10 80,25 L70,35 Q50,25 30,35 Z" fill="${c}" stroke="rgba(0,0,0,.3)" stroke-width="2"/>
+      <rect x="46" y="30" width="8" height="55" fill="#8b5a2b"/>`},
+    {id:"axe", name:"おの", svg:c=>`
+      <path d="M35,15 Q65,15 65,35 Q65,50 45,45 L35,35 Z" fill="${c}" stroke="rgba(0,0,0,.3)" stroke-width="2"/>
+      <rect x="46" y="30" width="8" height="55" fill="#8b5a2b"/>`},
+    {id:"shovel", name:"シャベル", svg:c=>`
+      <path d="M40,15 Q60,15 60,30 Q60,42 50,42 Q40,42 40,30 Z" fill="${c}" stroke="rgba(0,0,0,.3)" stroke-width="2"/>
+      <rect x="46" y="35" width="8" height="50" fill="#8b5a2b"/>`},
+    {id:"helmet", name:"ヘルメット", svg:c=>`
+      <path d="M25,55 Q25,20 50,20 Q75,20 75,55 L75,65 L60,65 L60,55 L40,55 L40,65 L25,65 Z" fill="${c}" stroke="rgba(0,0,0,.3)" stroke-width="2"/>`},
+    {id:"chestplate", name:"むねあて", svg:c=>`
+      <path d="M30,25 L70,25 L75,45 L65,85 L35,85 L25,45 Z" fill="${c}" stroke="rgba(0,0,0,.3)" stroke-width="2"/>
+      <rect x="42" y="25" width="16" height="20" fill="rgba(0,0,0,.15)"/>`},
+    {id:"block", name:"ブロック", svg:c=>`
+      <polygon points="50,15 85,32 50,49 15,32" fill="${c}"/>
+      <polygon points="15,32 50,49 50,85 15,68" fill="${c}" opacity=".75"/>
+      <polygon points="85,32 50,49 50,85 85,68" fill="${c}" opacity=".55"/>`},
+    {id:"shard", name:"かけら", svg:c=>`
+      <polygon points="50,10 60,45 50,90 40,45" fill="${c}" stroke="rgba(0,0,0,.25)" stroke-width="1.5"/>
+      <polygon points="30,30 38,50 30,75 22,50" fill="${c}" opacity=".8"/>
+      <polygon points="70,30 78,50 70,75 62,50" fill="${c}" opacity=".8"/>`},
+    {id:"star", name:"ほし", svg:c=>`
+      <polygon points="50,8 58,38 88,38 63,56 73,86 50,68 27,86 37,56 12,38 42,38" fill="${c}" stroke="rgba(0,0,0,.25)" stroke-width="1.5"/>`},
+    {id:"leggings", name:"ズボン", svg:c=>`
+      <path d="M35,15 L65,15 L65,50 L58,50 L58,90 L48,90 L48,55 L42,55 L42,90 L32,90 L32,50 L35,50 Z" fill="${c}" stroke="rgba(0,0,0,.3)" stroke-width="2"/>`},
+    {id:"boots", name:"ブーツ", svg:c=>`
+      <path d="M30,50 L55,50 L55,70 L70,70 L70,85 L25,85 L25,60 Q25,50 30,50 Z" fill="${c}" stroke="rgba(0,0,0,.3)" stroke-width="2"/>`},
+    {id:"bow", name:"ゆみ", svg:c=>`
+      <path d="M30,10 Q10,50 30,90" fill="none" stroke="${c}" stroke-width="6" stroke-linecap="round"/>
+      <line x1="30" y1="10" x2="30" y2="90" stroke="#e8e8e8" stroke-width="1.5"/>`},
+    {id:"arrow", name:"や", svg:c=>`
+      <line x1="20" y1="80" x2="80" y2="20" stroke="${c}" stroke-width="5" stroke-linecap="round"/>
+      <polygon points="80,20 68,24 76,32" fill="${c}"/>
+      <polygon points="20,80 32,76 24,68" fill="#8b5a2b"/>`},
+    {id:"shield", name:"たて", svg:c=>`
+      <path d="M50,10 L82,22 L82,52 Q82,80 50,92 Q18,80 18,52 L18,22 Z" fill="${c}" stroke="rgba(0,0,0,.3)" stroke-width="2"/>
+      <rect x="42" y="35" width="16" height="40" fill="rgba(0,0,0,.2)"/>`},
+    {id:"potion", name:"ポーション", svg:c=>`
+      <path d="M42,15 L58,15 L58,28 L66,45 L66,80 Q66,88 58,88 L42,88 Q34,88 34,80 L34,45 Z" fill="none" stroke="#888" stroke-width="2.5"/>
+      <path d="M36,50 L64,50 L64,80 Q64,86 58,86 L42,86 Q36,86 36,80 Z" fill="${c}" opacity=".85"/>
+      <rect x="44" y="10" width="12" height="8" fill="#8b5a2b"/>`},
+    {id:"apple", name:"りんご", svg:c=>`
+      <circle cx="50" cy="58" r="28" fill="${c}"/>
+      <circle cx="40" cy="48" r="8" fill="#fff" opacity=".25"/>
+      <line x1="50" y1="30" x2="53" y2="15" stroke="#5a3a1a" stroke-width="3" stroke-linecap="round"/>
+      <ellipse cx="60" cy="18" rx="8" ry="4" fill="#57c98a" transform="rotate(-30 60 18)"/>`},
+    {id:"torch", name:"たいまつ", svg:c=>`
+      <rect x="45" y="35" width="10" height="55" fill="#8b5a2b"/>
+      <polygon points="50,10 60,32 40,32" fill="${c}"/>
+      <circle cx="50" cy="30" r="7" fill="${c}" opacity=".7"/>`},
+    {id:"bucket", name:"バケツ", svg:c=>`
+      <path d="M28,35 L72,35 L65,85 L35,85 Z" fill="${c}" stroke="rgba(0,0,0,.3)" stroke-width="2"/>
+      <path d="M28,35 Q50,45 72,35" fill="none" stroke="rgba(0,0,0,.2)" stroke-width="2"/>
+      <path d="M32,32 Q50,15 68,32" fill="none" stroke="#5a5a5a" stroke-width="3"/>`},
+    {id:"bell", name:"かね", svg:c=>`
+      <path d="M32,60 Q32,25 50,25 Q68,25 68,60 L74,68 L26,68 Z" fill="${c}" stroke="rgba(0,0,0,.3)" stroke-width="2"/>
+      <rect x="44" y="68" width="12" height="8" fill="${c}"/>
+      <circle cx="50" cy="80" r="5" fill="#8b5a2b"/>`},
+    {id:"compass", name:"らしんばん", svg:c=>`
+      <circle cx="50" cy="50" r="30" fill="#8b8b8b" stroke="rgba(0,0,0,.3)" stroke-width="2"/>
+      <circle cx="50" cy="50" r="24" fill="#e8e8e8"/>
+      <polygon points="50,28 56,50 50,72 44,50" fill="${c}"/>`},
+    {id:"clock", name:"とけい", svg:c=>`
+      <circle cx="50" cy="50" r="30" fill="#e8c168" stroke="rgba(0,0,0,.3)" stroke-width="2"/>
+      <circle cx="50" cy="50" r="24" fill="#2b2b2b"/>
+      <line x1="50" y1="50" x2="50" y2="32" stroke="${c}" stroke-width="3" stroke-linecap="round"/>
+      <line x1="50" y1="50" x2="62" y2="55" stroke="${c}" stroke-width="3" stroke-linecap="round"/>`},
+    {id:"enchbook", name:"まほうのほん", svg:c=>`
+      <path d="M20,25 Q50,15 80,25 L80,80 Q50,70 20,80 Z" fill="${c}" stroke="rgba(0,0,0,.25)" stroke-width="2"/>
+      <line x1="50" y1="18" x2="50" y2="73" stroke="rgba(0,0,0,.2)" stroke-width="2"/>
+      <polygon points="35,35 40,45 30,45" fill="#fff" opacity=".6"/>
+      <polygon points="65,55 70,65 60,65" fill="#fff" opacity=".6"/>`},
+    {id:"trident", name:"トライデント", svg:c=>`
+      <rect x="46" y="30" width="8" height="60" fill="${c}"/>
+      <polygon points="50,5 58,25 50,20 42,25" fill="${c}"/>
+      <polygon points="30,15 38,30 30,25" fill="${c}"/>
+      <polygon points="70,15 62,30 70,25" fill="${c}"/>`},
+    {id:"banner", name:"はた", svg:c=>`
+      <rect x="42" y="10" width="8" height="82" fill="#8b5a2b"/>
+      <path d="M50,15 L82,15 L82,55 L66,45 L50,55 Z" fill="${c}" stroke="rgba(0,0,0,.2)" stroke-width="1.5"/>`}
+  ];
+
+  /* ---------- ランク演出（色替えではなく見た目そのものが変わる） ---------- */
+  function sparkleOverlay(){
+    const star = "0,-5 1.2,-1.5 5,-1.5 2,1 3,5 0,2.5 -3,5 -2,1 -5,-1.5 -1.2,-1.5";
+    return `<g fill="#fff8d0" opacity=".9">
+      <polygon points="${star}" transform="translate(14,16) scale(1)"/>
+      <polygon points="${star}" transform="translate(87,20) scale(.75)"/>
+      <polygon points="${star}" transform="translate(18,86) scale(.8)"/>
+      <polygon points="${star}" transform="translate(84,82) scale(.6)"/>
+    </g>`;
+  }
+  function legendaryGlint(){
+    return `<g opacity=".55">
+      <rect x="-20" y="35" width="140" height="9" fill="#e0aaff" transform="rotate(-25 50 50)"/>
+      <rect x="-20" y="55" width="140" height="6" fill="#ffffff" transform="rotate(-25 50 50)" opacity=".7"/>
+      <rect x="-20" y="70" width="140" height="5" fill="#c77dff" transform="rotate(-25 50 50)" opacity=".6"/>
+    </g>`;
+  }
+
+  const ITEMS = [];
+  GEMS.forEach(g=>{
+    SHAPES.forEach(s=>{
+      ITEMS.push({id:`${g.id}-${s.id}`, name:`${g.name}の${s.name}`, pool:"princess", gem:g.id, shape:s.id, tier:"normal"});
+      ITEMS.push({id:`${g.id}-${s.id}-sparkle`, name:`きらめきの${g.name}の${s.name}`, pool:"princess", gem:g.id, shape:s.id, tier:"sparkle"});
+    });
+  });
+  MATERIALS_MC.forEach(m=>{
+    SHAPES_MC.forEach(s=>{
+      ITEMS.push({id:`mc-${m.id}-${s.id}`, name:`${m.name}の${s.name}`, pool:"minecraft", material:m.id, shape:s.id, tier:"normal"});
+      ITEMS.push({id:`mc-${m.id}-${s.id}-legendary`, name:`でんせつの${m.name}の${s.name}`, pool:"minecraft", material:m.id, shape:s.id, tier:"legendary"});
+    });
+  });
+
+  function currentPool(){
+    return state.player === "youta" ? "minecraft" : "princess";
+  }
+
+  function resolveFill(item){
+    const gem = GEMS.find(g=>g.id===item.gem);
+    if(gem.id === "rainbow"){
+      const gid = `rg-${item.id}`;
+      return {
+        fill: `url(#${gid})`,
+        defs: `<defs><linearGradient id="${gid}" x1="0" y1="0" x2="1" y2="1">${RAINBOW_STOPS}</linearGradient></defs>`
+      };
+    }
+    return { fill: gem.hex, defs: "" };
+  }
+
+  function itemIconInner(item){
+    if(item.pool === "minecraft"){
+      const material = MATERIALS_MC.find(m=>m.id===item.material);
+      const shape = SHAPES_MC.find(s=>s.id===item.shape);
+      let markup = shape.svg(material.hex);
+      if(item.tier === "legendary") markup += legendaryGlint();
+      return markup;
+    }
+    const shape = SHAPES.find(s=>s.id===item.shape);
+    const {fill, defs} = resolveFill(item);
+    let markup = defs + shape.svg(fill);
+    if(item.tier === "sparkle") markup += sparkleOverlay();
+    return markup;
+  }
+
+  /* ---------- 実際に「身につけて」見えるアクセサリー描画（人形の座標系に直接配置） ---------- */
+  const WORN = {
+    tiara: c => `
+      <path d="M74,45 Q120,16 166,45 L159,57 Q120,32 81,57 Z" fill="#f4c14e" stroke="#e0a92e" stroke-width="1.5"/>
+      <circle cx="120" cy="28" r="6.5" fill="${c}"/><circle cx="96" cy="46" r="4.3" fill="${c}" opacity=".85"/><circle cx="144" cy="46" r="4.3" fill="${c}" opacity=".85"/>`,
+    hairclip: c => `
+      <g transform="translate(168,68) rotate(15)">
+        <rect x="-14" y="-4" width="28" height="8" rx="4" fill="${c}" stroke="rgba(0,0,0,.2)" stroke-width="1"/>
+        <circle cx="0" cy="0" r="6" fill="#fff8ec" stroke="rgba(0,0,0,.15)" stroke-width="1"/>
+        <circle cx="0" cy="0" r="2.6" fill="${c}"/>
+      </g>`,
+    earrings: c => `
+      <g transform="translate(63,108)">
+        <circle cx="0" cy="0" r="2.5" fill="#f4c14e"/><line x1="0" y1="2.5" x2="0" y2="10" stroke="#f4c14e" stroke-width="1.6"/>
+        <polygon points="0,10 4.5,19 0,26 -4.5,19" fill="${c}" stroke="rgba(0,0,0,.2)" stroke-width="1.2"/>
+      </g>
+      <g transform="translate(177,108)">
+        <circle cx="0" cy="0" r="2.5" fill="#f4c14e"/><line x1="0" y1="2.5" x2="0" y2="10" stroke="#f4c14e" stroke-width="1.6"/>
+        <polygon points="0,10 4.5,19 0,26 -4.5,19" fill="${c}" stroke="rgba(0,0,0,.2)" stroke-width="1.2"/>
+      </g>`,
+    necklace: c => `
+      <path d="M97,152 Q120,168 143,152" fill="none" stroke="#f4c14e" stroke-width="3" stroke-linecap="round"/>
+      <polygon points="120,164 128,176 120,190 112,176" fill="${c}" stroke="rgba(0,0,0,.2)" stroke-width="1.5"/>
+      <polygon points="120,164 128,176 120,176" fill="#fff" opacity=".5"/>`,
+    brooch: c => `
+      <g transform="translate(120,200)">
+        <g fill="${c}"><ellipse cx="0" cy="-7" rx="4.5" ry="6.5"/><ellipse cx="0" cy="7" rx="4.5" ry="6.5"/><ellipse cx="-7" cy="0" rx="6.5" ry="4.5"/><ellipse cx="7" cy="0" rx="6.5" ry="4.5"/></g>
+        <circle cx="0" cy="0" r="5" fill="#f4c14e" stroke="#e0a92e" stroke-width="1"/>
+      </g>`,
+    ribbon: c => `
+      <g transform="translate(120,208)">
+        <polygon points="0,0 -16,-9 -16,9" fill="${c}" stroke="rgba(0,0,0,.2)" stroke-width="1.2"/>
+        <polygon points="0,0 16,-9 16,9" fill="${c}" stroke="rgba(0,0,0,.2)" stroke-width="1.2"/>
+        <circle cx="0" cy="0" r="5" fill="#fff8ec" stroke="rgba(0,0,0,.15)" stroke-width="1"/>
+      </g>`,
+    bracelet: c => `
+      <g transform="translate(50,222) rotate(-25)">
+        <ellipse cx="0" cy="0" rx="10" ry="6" fill="none" stroke="#f4c14e" stroke-width="4"/>
+        <circle cx="0" cy="-6" r="3" fill="${c}"/>
+      </g>`,
+    ring: c => `
+      <g transform="translate(58,236)">
+        <circle cx="0" cy="0" r="4" fill="none" stroke="#f4c14e" stroke-width="2.2"/>
+        <polygon points="0,-6 3,-2 0,2 -3,-2" fill="${c}" stroke="rgba(0,0,0,.2)" stroke-width="1"/>
+      </g>`,
+    wand: c => `
+      <line x1="184" y1="235" x2="215" y2="192" stroke="#e0a92e" stroke-width="5" stroke-linecap="round"/>
+      <g transform="translate(218,186)"><polygon points="0,-11 3,-3 11,0 3,3 0,11 -3,3 -11,0 -3,-3" fill="${c}" stroke="rgba(0,0,0,.2)" stroke-width="1.5"/></g>`,
+    shoes: c => `
+      <ellipse cx="107" cy="368" rx="15" ry="7" fill="${c}" stroke="rgba(0,0,0,.25)" stroke-width="1.5"/>
+      <ellipse cx="107" cy="365" rx="6" ry="3" fill="#fff" opacity=".5"/>
+      <ellipse cx="133" cy="368" rx="15" ry="7" fill="${c}" stroke="rgba(0,0,0,.25)" stroke-width="1.5"/>
+      <ellipse cx="133" cy="365" rx="6" ry="3" fill="#fff" opacity=".5"/>`
+  };
+
+  function wornMarkup(item){
+    const tpl = WORN[item.shape];
+    if(!tpl) return "";
+    const {fill, defs} = resolveFill(item);
+    return defs + `<g class="worn-item">${tpl(fill)}</g>`;
+  }
+
+  /* ---------- 陽太モード：そうび（実際に身につけて見えるマイクラ装備） ---------- */
+  const MC_EQUIP_SHAPES = ["helmet","chestplate","sword","axe","pickaxe","shovel"];
+
+  const WORN_MC = {
+    helmet: c => `
+      <path d="M68,25 L132,25 L132,50 L120,50 L120,38 L80,38 L80,50 L68,50 Z" fill="${c}" stroke="rgba(0,0,0,.3)" stroke-width="2"/>`,
+    chestplate: c => `
+      <rect x="63" y="93" width="74" height="72" fill="${c}" stroke="rgba(0,0,0,.3)" stroke-width="2"/>
+      <rect x="90" y="93" width="20" height="72" fill="rgba(0,0,0,.15)"/>`,
+    sword: c => `
+      <g transform="translate(150,135) rotate(15)">
+        <rect x="-4" y="-45" width="8" height="50" fill="${c}" stroke="rgba(0,0,0,.3)" stroke-width="1.5"/>
+        <rect x="-15" y="5" width="30" height="9" fill="#8b5a2b"/>
+        <rect x="-4" y="14" width="8" height="18" fill="#5a3a1a"/>
+      </g>`,
+    axe: c => `
+      <g transform="translate(50,135) rotate(-15)">
+        <path d="M-4,-45 L-4,-10 L-22,-20 Q-22,-40 -4,-45 Z" fill="${c}" stroke="rgba(0,0,0,.3)" stroke-width="1.5"/>
+        <rect x="-4" y="-45" width="8" height="65" fill="#8b5a2b"/>
+      </g>`,
+    pickaxe: c => `
+      <g transform="translate(100,60) rotate(30)">
+        <path d="M-35,0 Q0,-18 35,0 L25,10 Q0,-2 -25,10 Z" fill="${c}" stroke="rgba(0,0,0,.3)" stroke-width="1.5"/>
+        <rect x="-4" y="0" width="8" height="70" fill="#8b5a2b"/>
+      </g>`,
+    shovel: c => `
+      <g transform="translate(148,175) rotate(10)">
+        <path d="M-9,-18 Q9,-18 9,-4 Q9,6 0,6 Q-9,6 -9,-4 Z" fill="${c}" stroke="rgba(0,0,0,.3)" stroke-width="1.5"/>
+        <rect x="-3" y="6" width="6" height="35" fill="#8b5a2b"/>
+      </g>`
+  };
+
+  function wornMarkupMC(item){
+    const tpl = WORN_MC[item.shape];
+    if(!tpl) return "";
+    const material = MATERIALS_MC.find(m=>m.id===item.material);
+    return `<g class="worn-item">${tpl(material.hex)}</g>`;
+  }
+
+  /* ---------- 状態管理 ---------- */
+  const SAVE_KEY = "princess-math-game-v1";
+  let state = loadState();
+
+  function loadState(){
+    let s = null;
+    try{
+      const raw = localStorage.getItem(SAVE_KEY);
+      if(raw) s = JSON.parse(raw);
+    }catch(e){}
+    if(!s) s = {};
+    if(!Array.isArray(s.collected)) s.collected = [];
+    if(typeof s.streak !== "number") s.streak = 0;
+    if(typeof s.muted !== "boolean") s.muted = false;
+    if(!s.equipped || typeof s.equipped !== "object") s.equipped = {};
+    if(!["anna","naoya","youta"].includes(s.player)) s.player = null;
+    return s;
+  }
+  function saveState(){
+    try{ localStorage.setItem(SAVE_KEY, JSON.stringify(state)); }catch(e){}
+  }
+
+  /* ---------- サウンド ---------- */
+  let audioCtx = null;
+  function beep(freqs, dur){
+    if(state.muted) return;
+    try{
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      const now = audioCtx.currentTime;
+      freqs.forEach((f,i)=>{
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "sine";
+        osc.frequency.value = f;
+        gain.gain.setValueAtTime(0.0001, now + i*0.12);
+        gain.gain.linearRampToValueAtTime(0.18, now + i*0.12 + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + i*0.12 + dur);
+        osc.connect(gain).connect(audioCtx.destination);
+        osc.start(now + i*0.12);
+        osc.stop(now + i*0.12 + dur + 0.05);
+      });
+    }catch(e){}
+  }
+  function playCorrect(){ beep([523.25,659.25,783.99], 0.35); }
+  function playWrong(){ beep([300,220], 0.3); }
+  function playReward(){ beep([659.25,783.99,987.77,1174.66], 0.45); }
+
+  /* ---------- 背景のきらきら生成 ---------- */
+  function makeSparkles(){
+    const el = document.getElementById("sparkles");
+    el.innerHTML = "";
+    const glyphs = state.player === "youta"
+      ? ["⛏️","💎","🟩","🟫","⬛"]
+      : ["✨","⭐","💗","🌸","👑"];
+    for(let i=0;i<16;i++){
+      const s = document.createElement("span");
+      s.textContent = glyphs[i % glyphs.length];
+      s.style.left = Math.random()*100 + "vw";
+      s.style.animationDelay = (Math.random()*9) + "s";
+      s.style.animationDuration = (7+Math.random()*6) + "s";
+      s.style.fontSize = (14+Math.random()*16) + "px";
+      el.appendChild(s);
+    }
+  }
+  makeSparkles();
+
+  /* ---------- 問題生成 ---------- */
+  let current = null;
+
+  function maxAddendForLevel(){
+    // コレクション（プリンセスの宝物のみ）が増えるほど少しずつ数字の範囲が広がる
+    const princessCount = state.collected.filter(id=>{
+      const it = ITEMS.find(x=>x.id===id);
+      return it && it.pool === "princess";
+    }).length;
+    return Math.min(6, 2 + Math.floor(princessCount/2));
+  }
+
+  function genProblem(){
+    if(state.player === "naoya"){
+      let a,b,sum,opSymbol;
+      if(Math.random() < 0.5){
+        // 二桁の掛け算
+        a = 10 + Math.floor(Math.random()*90);
+        b = 2 + Math.floor(Math.random()*8);
+        sum = a*b;
+        opSymbol = "×";
+      }else{
+        // 三桁の足し算
+        a = 100 + Math.floor(Math.random()*900);
+        b = 100 + Math.floor(Math.random()*900);
+        sum = a+b;
+        opSymbol = "＋";
+      }
+      current = {terms:[a,b], sum, opSymbol, mode:"free"};
+      return;
+    }
+
+    if(state.player === "youta"){
+      // 暗算2級レベル：3口のたし算／3桁×2桁の掛け算／わり切れる2〜3桁のわり算
+      const type = ["add3","mul","div"][Math.floor(Math.random()*3)];
+      let terms, sum, opSymbol;
+      if(type === "add3"){
+        terms = [
+          100 + Math.floor(Math.random()*900),
+          100 + Math.floor(Math.random()*900),
+          100 + Math.floor(Math.random()*900)
+        ];
+        sum = terms[0] + terms[1] + terms[2];
+        opSymbol = "＋";
+      }else if(type === "mul"){
+        const a = 100 + Math.floor(Math.random()*900);
+        const b = 10 + Math.floor(Math.random()*90);
+        terms = [a,b];
+        sum = a*b;
+        opSymbol = "×";
+      }else{
+        const divisor = 10 + Math.floor(Math.random()*90);
+        const quotient = 10 + Math.floor(Math.random()*90);
+        terms = [divisor*quotient, divisor];
+        sum = quotient;
+        opSymbol = "÷";
+      }
+      current = {terms, sum, opSymbol, mode:"free"};
+      return;
+    }
+
+    const maxA = maxAddendForLevel();
+    let a,b,sum;
+    do{
+      a = 1 + Math.floor(Math.random()*maxA);
+      b = 1 + Math.floor(Math.random()*maxA);
+      sum = a+b;
+    }while(sum>10);
+
+    const choices = new Set([sum]);
+    while(choices.size < 3){
+      const delta = [-2,-1,1,2][Math.floor(Math.random()*4)];
+      const cand = sum + delta;
+      if(cand>=1 && cand<=10) choices.add(cand);
+    }
+    const choiceArr = shuffle(Array.from(choices));
+    current = {a,b,sum,choiceArr,mode:"anna"};
+  }
+
+  function shuffle(arr){
+    for(let i=arr.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [arr[i],arr[j]] = [arr[j],arr[i]];
+    }
+    return arr;
+  }
+
+  function dotsHtml(n){
+    let h = "";
+    for(let i=0; i<n; i+=5){
+      const count = Math.min(5, n-i);
+      h += `<div class="dot-row">${"<i></i>".repeat(count)}</div>`;
+    }
+    return h;
+  }
+
+  function numChipHtml(n){
+    const p = PRINCESSES[n];
+    return `
+      <div class="num-chip" style="background:${chipBg(n)}">
+        <svg class="princess-badge"><use href="#${p.icon}"></use></svg>
+        <div class="digit">${n}</div>
+        <div class="dots">${dotsHtml(n)}</div>
+        <div class="pname">${p.name}</div>
+      </div>
+    `;
+  }
+
+  function renderProblem(){
+    const eq = document.getElementById("equation");
+    const ch = document.getElementById("choices");
+    document.getElementById("feedback").textContent = "";
+    document.getElementById("feedback").className = "feedback";
+
+    if(current.mode === "free"){
+      const {terms,opSymbol} = current;
+      const termsHtml = terms
+        .map(t=>`<div class="naoya-num">${t}</div>`)
+        .join(`<div class="op">${opSymbol}</div>`);
+      eq.innerHTML = `
+        <div class="free-terms-row">${termsHtml}</div>
+        <div class="free-answer-row">
+          <div class="op">＝</div>
+          <div class="naoya-input-wrap">
+            <input type="number" inputmode="numeric" id="naoyaInput" class="naoya-input" placeholder="？" autocomplete="off">
+          </div>
+        </div>
+      `;
+      ch.innerHTML = `<button class="naoya-submit-btn" id="naoyaSubmit">こたえる ➜</button>`;
+      const input = document.getElementById("naoyaInput");
+      document.getElementById("naoyaSubmit").addEventListener("click", onNaoyaSubmit);
+      input.addEventListener("keydown", e=>{ if(e.key === "Enter") onNaoyaSubmit(); });
+      setTimeout(()=>input.focus(), 50);
+      return;
+    }
+
+    const {a,b} = current;
+    eq.innerHTML = `
+      ${numChipHtml(a)}
+      <div class="op">＋</div>
+      ${numChipHtml(b)}
+      <div class="op">＝</div>
+      <div class="q-chip" id="qChip">？</div>
+    `;
+
+    ch.innerHTML = "";
+    current.choiceArr.forEach(v=>{
+      const p = PRINCESSES[v];
+      const btn = document.createElement("button");
+      btn.className = "choice-btn";
+      btn.style.background = chipBg(v);
+      btn.innerHTML = `
+        <svg class="princess-badge"><use href="#${p.icon}"></use></svg>
+        <span>${v}</span>
+        <span class="label">${p.name}</span>
+      `;
+      btn.dataset.value = v;
+      btn.addEventListener("click", ()=>onAnswer(v, btn));
+      ch.appendChild(btn);
+    });
+  }
+
+  /* ---------- 回答処理（共通のせいかい/おしい処理） ---------- */
+  function markCorrect(){
+    const mascot = document.getElementById("mascot");
+    mascot.className = "mascot happy";
+    playCorrect();
+    launchConfetti();
+    state.streak++;
+    updateStreakGauge();
+    saveState();
+
+    if(state.streak >= 3){
+      state.streak = 0;
+      saveState();
+      setTimeout(()=>{ updateStreakGauge(); awardItem(); }, 550);
+      return true;
+    }
+    return false;
+  }
+
+  function markWrong(){
+    const mascot = document.getElementById("mascot");
+    mascot.className = "mascot oops";
+    playWrong();
+    state.streak = 0;
+    updateStreakGauge();
+    saveState();
+  }
+
+  function fillQChip(value){
+    const qChip = document.getElementById("qChip");
+    qChip.classList.remove("q-pop","q-correct","q-wrong","q-reveal");
+    qChip.style.background = chipBg(value);
+    qChip.innerHTML = `<span class="qdigit">${value}</span>`;
+    // リフローさせてからクラス付与し、pop アニメーションを毎回再生する
+    void qChip.offsetWidth;
+    qChip.classList.add("q-pop");
+    return qChip;
+  }
+
+  function onAnswer(value, btn){
+    document.querySelectorAll(".choice-btn").forEach(b=>b.disabled = true);
+    const fb = document.getElementById("feedback");
+    const qChip = fillQChip(value);
+
+    if(value === current.sum){
+      btn.classList.add("correct-flash");
+      qChip.classList.add("q-correct");
+      fb.textContent = "せいかい！すごいね💖";
+      fb.className = "feedback good";
+      const rewarded = markCorrect();
+      if(!rewarded) setTimeout(nextProblem, 1100);
+    }else{
+      btn.classList.add("wrong-flash");
+      document.querySelectorAll(".choice-btn").forEach(b=>{
+        if(parseInt(b.dataset.value) === current.sum) b.classList.add("correct-flash");
+      });
+      qChip.classList.add("q-wrong");
+      fb.textContent = `おしい！こたえは ${current.sum} だよ。もういっかい！`;
+      fb.className = "feedback bad";
+      markWrong();
+
+      setTimeout(()=>{
+        qChip.classList.remove("q-wrong");
+        qChip.style.background = chipBg(current.sum);
+        qChip.innerHTML = `<span class="qdigit">${current.sum}</span>`;
+        qChip.classList.add("q-reveal");
+      }, 700);
+      setTimeout(nextProblem, 1900);
+    }
+  }
+
+  function onNaoyaSubmit(){
+    const input = document.getElementById("naoyaInput");
+    const submitBtn = document.getElementById("naoyaSubmit");
+    if(!input || input.value.trim() === "") return;
+    const value = parseInt(input.value, 10);
+    const fb = document.getElementById("feedback");
+    input.disabled = true;
+    submitBtn.disabled = true;
+
+    if(value === current.sum){
+      input.classList.add("naoya-correct");
+      fb.textContent = "せいかい！すごい！💯";
+      fb.className = "feedback good";
+      const rewarded = markCorrect();
+      if(!rewarded) setTimeout(nextProblem, 1300);
+    }else{
+      input.classList.add("naoya-wrong");
+      fb.textContent = `おしい！こたえは ${current.sum} だよ。もういっかい！`;
+      fb.className = "feedback bad";
+      markWrong();
+      setTimeout(nextProblem, 1900);
+    }
+  }
+
+  function nextProblem(){
+    document.getElementById("mascot").className = "mascot";
+    genProblem();
+    renderProblem();
+  }
+
+  function updateStreakGauge(){
+    const hearts = document.querySelectorAll("#streakGauge .heart");
+    hearts.forEach((h,i)=>{
+      h.classList.toggle("on", i < state.streak);
+    });
+  }
+
+  /* ---------- ごほうび ---------- */
+  function pickItem(){
+    const poolItems = ITEMS.filter(it=>it.pool === currentPool());
+    const counts = {};
+    poolItems.forEach(it=>counts[it.id]=0);
+    state.collected.forEach(id=>{ if(id in counts) counts[id]++; });
+    const uncollected = poolItems.filter(it=>counts[it.id]===0);
+    const pickPool = uncollected.length ? uncollected : poolItems;
+    return pickPool[Math.floor(Math.random()*pickPool.length)];
+  }
+
+  function awardItem(){
+    const item = pickItem();
+    state.collected.push(item.id);
+    saveState();
+    renderCollection();
+
+    const back = document.getElementById("modalBack");
+    const icon = document.getElementById("modalIcon");
+    icon.innerHTML = itemIconInner(item);
+    document.getElementById("modalName").textContent = item.name + " を てにいれた！";
+    back.classList.add("show");
+    playReward();
+    launchConfetti(60);
+  }
+
+  document.getElementById("modalClose").addEventListener("click", ()=>{
+    document.getElementById("modalBack").classList.remove("show");
+    nextProblem();
+  });
+
+  /* ---------- きせかえ ---------- */
+  function toggleEquip(itemId){
+    const item = ITEMS.find(i=>i.id===itemId);
+    if(!item) return;
+    if(state.equipped[item.shape] === itemId){
+      delete state.equipped[item.shape];
+    }else{
+      state.equipped[item.shape] = itemId;
+    }
+    saveState();
+    renderAvatar();
+    renderCollection();
+  }
+
+  function renderAvatar(){
+    PRINCESS_EQUIP_SHAPES.forEach(shapeId=>{
+      const g = document.getElementById(`worn-${shapeId}`);
+      if(!g) return;
+      const itemId = state.equipped[shapeId];
+      const item = itemId ? ITEMS.find(i=>i.id===itemId) : null;
+      g.innerHTML = item ? wornMarkup(item) : "";
+    });
+    const defaultShoes = document.getElementById("worn-shoes-default");
+    if(defaultShoes) defaultShoes.style.display = state.equipped.shoes ? "none" : "";
+
+    MC_EQUIP_SHAPES.forEach(shapeId=>{
+      const g = document.getElementById(`worn-mc-${shapeId}`);
+      if(!g) return;
+      const itemId = state.equipped[shapeId];
+      const item = itemId ? ITEMS.find(i=>i.id===itemId) : null;
+      g.innerHTML = item ? wornMarkupMC(item) : "";
+    });
+  }
+
+  document.querySelectorAll(".avatar-slot").forEach(slot=>{
+    slot.addEventListener("click", ()=>{
+      const shapeId = slot.dataset.shape;
+      if(state.equipped[shapeId]){
+        delete state.equipped[shapeId];
+        saveState();
+        renderAvatar();
+        renderCollection();
+      }
+    });
+  });
+
+  function renderCollection(){
+    const grid = document.getElementById("itemGrid");
+    grid.innerHTML = "";
+    const pool = currentPool();
+    const poolTotal = ITEMS.filter(it=>it.pool === pool).length;
+    const counts = {};
+    const order = [];
+    let poolCollectedCount = 0;
+    state.collected.forEach(id=>{
+      const it = ITEMS.find(x=>x.id===id);
+      if(!it || it.pool !== pool) return;
+      poolCollectedCount++;
+      if(!counts[id]) order.push(id);
+      counts[id] = (counts[id]||0)+1;
+    });
+
+    if(order.length === 0){
+      grid.innerHTML = pool === "minecraft"
+        ? `<div class="empty-hint">3もんれんぞく せいかいして、さいしょのブロックを ほりだそう！⛏️</div>`
+        : `<div class="empty-hint">3もんれんぞく せいかいして、さいしょのアイテムを あつめよう！✨</div>`;
+    }else{
+      order.forEach(id=>{
+        const it = ITEMS.find(x=>x.id===id);
+        const equippable = (pool === "princess" && PRINCESS_EQUIP_SHAPES.includes(it.shape)) || (pool === "minecraft" && MC_EQUIP_SHAPES.includes(it.shape));
+        const isWorn = equippable && state.equipped[it.shape] === id;
+        const slot = document.createElement("div");
+        slot.className = "item-slot" + (isWorn ? " equipped" : "");
+        slot.title = it.name + (isWorn ? "（そうび中・タップではずす）" : equippable ? "（タップでそうび）" : "");
+        slot.innerHTML = `<svg viewBox="0 0 100 100">${itemIconInner(it)}</svg>`;
+        if(isWorn){
+          const w = document.createElement("span");
+          w.className = "wornmark";
+          w.textContent = "✨";
+          slot.appendChild(w);
+        }
+        if(counts[id] > 1){
+          const b = document.createElement("span");
+          b.className = "badge";
+          b.textContent = "×" + counts[id];
+          slot.appendChild(b);
+        }
+        if(equippable) slot.addEventListener("click", ()=>toggleEquip(id));
+        grid.appendChild(slot);
+      });
+    }
+
+    document.getElementById("collectCount").textContent =
+      `${order.length}/${poolTotal}しゅるい はっけん！（あつめた かず：${poolCollectedCount}）`;
+  }
+
+  function renderLegend(){
+    const grid = document.getElementById("legendGrid");
+    grid.innerHTML = "";
+    for(let n=1; n<=10; n++){
+      const p = PRINCESSES[n];
+      const item = document.createElement("div");
+      item.className = "legend-item";
+      item.style.background = chipBg(n);
+      item.innerHTML = `
+        <svg class="princess-badge"><use href="#${p.icon}"></use></svg>
+        <div class="ldigit">${n}</div>
+        <div class="lname">${p.name}</div>
+      `;
+      grid.appendChild(item);
+    }
+  }
+
+  /* ---------- 紙吹雪演出 ---------- */
+  function launchConfetti(n){
+    n = n || 26;
+    const colors = state.player === "youta"
+      ? ["#4a9e3c","#8b5a2b","#8b8b8b","#e8b923","#4ec9dd","#171717"]
+      : Object.values(NUM_COLORS).map(c=>c.hex).filter(h=>!h.startsWith("linear"));
+    for(let i=0;i<n;i++){
+      const p = document.createElement("div");
+      p.className = "confetti-piece";
+      const size = 6 + Math.random()*6;
+      p.style.width = size+"px";
+      p.style.height = (size*1.4)+"px";
+      p.style.left = Math.random()*100 + "vw";
+      p.style.background = colors[Math.floor(Math.random()*colors.length)];
+      if(state.player === "youta") p.style.borderRadius = "0";
+      p.style.animationDuration = (1.6 + Math.random()*1.4) + "s";
+      p.style.animationDelay = (Math.random()*0.3) + "s";
+      document.body.appendChild(p);
+      setTimeout(()=>p.remove(), 3200);
+    }
+  }
+
+  /* ---------- サウンドボタン ---------- */
+  const soundBtn = document.getElementById("soundBtn");
+  function refreshSoundBtn(){
+    soundBtn.textContent = state.muted ? "🔇" : "🔊";
+  }
+  soundBtn.addEventListener("click", ()=>{
+    state.muted = !state.muted;
+    saveState();
+    refreshSoundBtn();
+  });
+
+  /* ---------- プレイヤー選択 ---------- */
+  const CREEPER_ROWS = [
+    [1,2,5,6],
+    [1,2,5,6],
+    [2,3,4,5],
+    [2,3,4,5],
+    [3,4],
+    [2,3,4,5],
+    [1,2,5,6],
+    [0,1,6,7]
+  ];
+  function creeperSvg(){
+    let rects = '<rect width="8" height="8" fill="#4a9e3c"/>';
+    CREEPER_ROWS.forEach((cols,row)=>{
+      cols.forEach(col=>{
+        rects += `<rect x="${col}" y="${row}" width="1" height="1" fill="#171717"/>`;
+      });
+    });
+    return `<svg viewBox="0 0 8 8" width="100%" height="100%" shape-rendering="crispEdges">${rects}</svg>`;
+  }
+
+  const PLAYER_CONFIG = {
+    anna: {
+      title: "👑 プリンセスたしざんランド 👑",
+      sub: "かずをたしてドレスアップ・アイテムをあつめよう！",
+      mascot: "👸"
+    },
+    naoya: {
+      title: "🧮 なおやさんすうチャレンジ 🧮",
+      sub: "かけ算・たし算にちょうせんしてアイテムをあつめよう！",
+      mascot: "🤴"
+    },
+    youta: {
+      title: "⛏️ マイクラさんすうワールド ⛏️",
+      sub: "けいさんにちょうせんしてブロックをあつめよう！",
+      mascot: null
+    }
+  };
+
+  function applyPlayerTheme(player){
+    const cfg = PLAYER_CONFIG[player];
+    document.getElementById("mainTitle").textContent = cfg.title;
+    document.getElementById("mainSub").textContent = cfg.sub;
+    const mascotEl = document.getElementById("mascot");
+    if(player === "youta"){
+      mascotEl.innerHTML = creeperSvg();
+    }else{
+      mascotEl.textContent = cfg.mascot;
+    }
+    mascotEl.classList.toggle("mascot-pixel", player === "youta");
+    document.body.dataset.player = player;
+    document.getElementById("collectionTitle").textContent =
+      player === "youta" ? "⛏️ たからばこ ⛏️" : "✨ プリンセスの宝箱 ✨";
+    makeSparkles();
+    renderCollection();
+  }
+
+  function startGame(player){
+    state.player = player;
+    saveState();
+    applyPlayerTheme(player);
+    document.getElementById("titleScreen").classList.add("hidden");
+    document.getElementById("mainWrap").style.display = "";
+    renderAvatar();
+    renderCollection();
+    renderLegend();
+    nextProblem();
+  }
+
+  document.querySelectorAll(".player-card").forEach(btn=>{
+    btn.addEventListener("click", ()=> startGame(btn.dataset.player));
+  });
+
+  document.getElementById("switchPlayerBtn").addEventListener("click", ()=>{
+    document.getElementById("titleScreen").classList.remove("hidden");
+    document.getElementById("mainWrap").style.display = "none";
+  });
+
+  /* ---------- 初期化 ---------- */
+  refreshSoundBtn();
+  updateStreakGauge();
+  if(state.player){
+    document.getElementById("mainWrap").style.display = "";
+    document.getElementById("titleScreen").classList.add("hidden");
+    applyPlayerTheme(state.player);
+    renderAvatar();
+    renderCollection();
+    renderLegend();
+    nextProblem();
+  }else{
+    document.getElementById("mainWrap").style.display = "none";
+  }
+
+})();
+</script>
+</body>
+</html>
