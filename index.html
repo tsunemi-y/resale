@@ -1345,12 +1345,68 @@
 
   const RAINBOW_STOPS = `<stop offset="0" stop-color="#ff6b7a"/><stop offset=".25" stop-color="#ffd23d"/><stop offset=".5" stop-color="#57c98a"/><stop offset=".75" stop-color="#4da6ff"/><stop offset="1" stop-color="#b37bff"/>`;
 
+  /* ---------- 陽太モード専用：マイクラ素材 × アイテム（100種） ---------- */
+  const MATERIALS_MC = [
+    {id:"diamond",   name:"ダイヤモンド",   hex:"#5eead4"},
+    {id:"gold",      name:"きん",          hex:"#e8b923"},
+    {id:"iron",      name:"てつ",          hex:"#d8d8d8"},
+    {id:"emerald",   name:"エメラルド",     hex:"#17a854"},
+    {id:"redstone",  name:"レッドストーン", hex:"#c41e1e"},
+    {id:"lapis",     name:"ラピスラズリ",   hex:"#2952a3"},
+    {id:"netherite", name:"ネザライト",     hex:"#4a3f4a"},
+    {id:"coal",      name:"せきたん",       hex:"#2b2b2b"},
+    {id:"quartz",    name:"クォーツ",       hex:"#f0e8d8"},
+    {id:"amethyst",  name:"アメジスト",     hex:"#9c6bcf"}
+  ];
+
+  const SHAPES_MC = [
+    {id:"ingot", name:"インゴット", svg:c=>`
+      <path d="M20,55 L30,40 L70,40 L80,55 L80,65 L20,65 Z" fill="${c}" stroke="rgba(0,0,0,.3)" stroke-width="2"/>`},
+    {id:"sword", name:"けん", svg:c=>`
+      <rect x="46" y="15" width="8" height="45" fill="${c}" stroke="rgba(0,0,0,.3)" stroke-width="1.5"/>
+      <rect x="35" y="60" width="30" height="8" fill="#8b5a2b"/>
+      <rect x="46" y="68" width="8" height="18" fill="#5a3a1a"/>`},
+    {id:"pickaxe", name:"つるはし", svg:c=>`
+      <path d="M20,25 Q50,10 80,25 L70,35 Q50,25 30,35 Z" fill="${c}" stroke="rgba(0,0,0,.3)" stroke-width="2"/>
+      <rect x="46" y="30" width="8" height="55" fill="#8b5a2b"/>`},
+    {id:"axe", name:"おの", svg:c=>`
+      <path d="M35,15 Q65,15 65,35 Q65,50 45,45 L35,35 Z" fill="${c}" stroke="rgba(0,0,0,.3)" stroke-width="2"/>
+      <rect x="46" y="30" width="8" height="55" fill="#8b5a2b"/>`},
+    {id:"shovel", name:"シャベル", svg:c=>`
+      <path d="M40,15 Q60,15 60,30 Q60,42 50,42 Q40,42 40,30 Z" fill="${c}" stroke="rgba(0,0,0,.3)" stroke-width="2"/>
+      <rect x="46" y="35" width="8" height="50" fill="#8b5a2b"/>`},
+    {id:"helmet", name:"ヘルメット", svg:c=>`
+      <path d="M25,55 Q25,20 50,20 Q75,20 75,55 L75,65 L60,65 L60,55 L40,55 L40,65 L25,65 Z" fill="${c}" stroke="rgba(0,0,0,.3)" stroke-width="2"/>`},
+    {id:"chestplate", name:"むねあて", svg:c=>`
+      <path d="M30,25 L70,25 L75,45 L65,85 L35,85 L25,45 Z" fill="${c}" stroke="rgba(0,0,0,.3)" stroke-width="2"/>
+      <rect x="42" y="25" width="16" height="20" fill="rgba(0,0,0,.15)"/>`},
+    {id:"block", name:"ブロック", svg:c=>`
+      <polygon points="50,15 85,32 50,49 15,32" fill="${c}"/>
+      <polygon points="15,32 50,49 50,85 15,68" fill="${c}" opacity=".75"/>
+      <polygon points="85,32 50,49 50,85 85,68" fill="${c}" opacity=".55"/>`},
+    {id:"shard", name:"かけら", svg:c=>`
+      <polygon points="50,10 60,45 50,90 40,45" fill="${c}" stroke="rgba(0,0,0,.25)" stroke-width="1.5"/>
+      <polygon points="30,30 38,50 30,75 22,50" fill="${c}" opacity=".8"/>
+      <polygon points="70,30 78,50 70,75 62,50" fill="${c}" opacity=".8"/>`},
+    {id:"star", name:"ほし", svg:c=>`
+      <polygon points="50,8 58,38 88,38 63,56 73,86 50,68 27,86 37,56 12,38 42,38" fill="${c}" stroke="rgba(0,0,0,.25)" stroke-width="1.5"/>`}
+  ];
+
   const ITEMS = [];
   GEMS.forEach(g=>{
     SHAPES.forEach(s=>{
-      ITEMS.push({id:`${g.id}-${s.id}`, name:`${g.name}の${s.name}`, gem:g.id, shape:s.id});
+      ITEMS.push({id:`${g.id}-${s.id}`, name:`${g.name}の${s.name}`, pool:"princess", gem:g.id, shape:s.id});
     });
   });
+  MATERIALS_MC.forEach(m=>{
+    SHAPES_MC.forEach(s=>{
+      ITEMS.push({id:`mc-${m.id}-${s.id}`, name:`${m.name}の${s.name}`, pool:"minecraft", material:m.id, shape:s.id});
+    });
+  });
+
+  function currentPool(){
+    return state.player === "youta" ? "minecraft" : "princess";
+  }
 
   function resolveFill(item){
     const gem = GEMS.find(g=>g.id===item.gem);
@@ -1365,6 +1421,11 @@
   }
 
   function itemIconInner(item){
+    if(item.pool === "minecraft"){
+      const material = MATERIALS_MC.find(m=>m.id===item.material);
+      const shape = SHAPES_MC.find(s=>s.id===item.shape);
+      return shape.svg(material.hex);
+    }
     const shape = SHAPES.find(s=>s.id===item.shape);
     const {fill, defs} = resolveFill(item);
     return defs + shape.svg(fill);
@@ -1502,12 +1563,16 @@
   let current = null;
 
   function maxAddendForLevel(){
-    // コレクションが増えるほど少しずつ数字の範囲が広がる
-    return Math.min(6, 2 + Math.floor(state.collected.length/2));
+    // コレクション（プリンセスの宝物のみ）が増えるほど少しずつ数字の範囲が広がる
+    const princessCount = state.collected.filter(id=>{
+      const it = ITEMS.find(x=>x.id===id);
+      return it && it.pool === "princess";
+    }).length;
+    return Math.min(6, 2 + Math.floor(princessCount/2));
   }
 
   function genProblem(){
-    if(state.player === "naoya" || state.player === "youta"){
+    if(state.player === "naoya"){
       let a,b,sum,opSymbol;
       if(Math.random() < 0.5){
         // 二桁の掛け算
@@ -1522,7 +1587,36 @@
         sum = a+b;
         opSymbol = "＋";
       }
-      current = {a,b,sum,opSymbol,mode:"free"};
+      current = {terms:[a,b], sum, opSymbol, mode:"free"};
+      return;
+    }
+
+    if(state.player === "youta"){
+      // 暗算2級レベル：3口のたし算／3桁×2桁の掛け算／わり切れる2〜3桁のわり算
+      const type = ["add3","mul","div"][Math.floor(Math.random()*3)];
+      let terms, sum, opSymbol;
+      if(type === "add3"){
+        terms = [
+          100 + Math.floor(Math.random()*900),
+          100 + Math.floor(Math.random()*900),
+          100 + Math.floor(Math.random()*900)
+        ];
+        sum = terms[0] + terms[1] + terms[2];
+        opSymbol = "＋";
+      }else if(type === "mul"){
+        const a = 100 + Math.floor(Math.random()*900);
+        const b = 10 + Math.floor(Math.random()*90);
+        terms = [a,b];
+        sum = a*b;
+        opSymbol = "×";
+      }else{
+        const divisor = 10 + Math.floor(Math.random()*90);
+        const quotient = 10 + Math.floor(Math.random()*90);
+        terms = [divisor*quotient, divisor];
+        sum = quotient;
+        opSymbol = "÷";
+      }
+      current = {terms, sum, opSymbol, mode:"free"};
       return;
     }
 
@@ -1580,11 +1674,12 @@
     document.getElementById("feedback").className = "feedback";
 
     if(current.mode === "free"){
-      const {a,b,opSymbol} = current;
+      const {terms,opSymbol} = current;
+      const termsHtml = terms
+        .map(t=>`<div class="naoya-num">${t}</div>`)
+        .join(`<div class="op">${opSymbol}</div>`);
       eq.innerHTML = `
-        <div class="naoya-num">${a}</div>
-        <div class="op">${opSymbol}</div>
-        <div class="naoya-num">${b}</div>
+        ${termsHtml}
         <div class="op">＝</div>
         <div class="naoya-input-wrap">
           <input type="number" inputmode="numeric" id="naoyaInput" class="naoya-input" placeholder="？" autocomplete="off">
@@ -1734,12 +1829,13 @@
 
   /* ---------- ごほうび ---------- */
   function pickItem(){
+    const poolItems = ITEMS.filter(it=>it.pool === currentPool());
     const counts = {};
-    ITEMS.forEach(it=>counts[it.id]=0);
-    state.collected.forEach(id=>counts[id] = (counts[id]||0)+1);
-    const uncollected = ITEMS.filter(it=>counts[it.id]===0);
-    const pool = uncollected.length ? uncollected : ITEMS;
-    return pool[Math.floor(Math.random()*pool.length)];
+    poolItems.forEach(it=>counts[it.id]=0);
+    state.collected.forEach(id=>{ if(id in counts) counts[id]++; });
+    const uncollected = poolItems.filter(it=>counts[it.id]===0);
+    const pickPool = uncollected.length ? uncollected : poolItems;
+    return pickPool[Math.floor(Math.random()*pickPool.length)];
   }
 
   function awardItem(){
@@ -1803,24 +1899,30 @@
   function renderCollection(){
     const grid = document.getElementById("itemGrid");
     grid.innerHTML = "";
+    const pool = currentPool();
+    const poolTotal = ITEMS.filter(it=>it.pool === pool).length;
     const counts = {};
     const order = [];
+    let poolCollectedCount = 0;
     state.collected.forEach(id=>{
+      const it = ITEMS.find(x=>x.id===id);
+      if(!it || it.pool !== pool) return;
+      poolCollectedCount++;
       if(!counts[id]) order.push(id);
       counts[id] = (counts[id]||0)+1;
     });
 
     if(order.length === 0){
-      grid.innerHTML = state.player === "youta"
+      grid.innerHTML = pool === "minecraft"
         ? `<div class="empty-hint">3もんれんぞく せいかいして、さいしょのブロックを ほりだそう！⛏️</div>`
         : `<div class="empty-hint">3もんれんぞく せいかいして、さいしょのアイテムを あつめよう！✨</div>`;
     }else{
       order.forEach(id=>{
         const it = ITEMS.find(x=>x.id===id);
-        const isWorn = state.equipped[it.shape] === id;
+        const isWorn = pool === "princess" && state.equipped[it.shape] === id;
         const slot = document.createElement("div");
         slot.className = "item-slot" + (isWorn ? " equipped" : "");
-        slot.title = it.name + (isWorn ? "（そうちゅう・タップではずす）" : "（タップできせかえ）");
+        slot.title = it.name + (isWorn ? "（そうちゅう・タップではずす）" : pool === "princess" ? "（タップできせかえ）" : "");
         slot.innerHTML = `<svg viewBox="0 0 100 100">${itemIconInner(it)}</svg>`;
         if(isWorn){
           const w = document.createElement("span");
@@ -1834,13 +1936,13 @@
           b.textContent = "×" + counts[id];
           slot.appendChild(b);
         }
-        slot.addEventListener("click", ()=>toggleEquip(id));
+        if(pool === "princess") slot.addEventListener("click", ()=>toggleEquip(id));
         grid.appendChild(slot);
       });
     }
 
     document.getElementById("collectCount").textContent =
-      `${order.length}/${ITEMS.length}しゅるい はっけん！（あつめた かず：${state.collected.length}）`;
+      `${order.length}/${poolTotal}しゅるい はっけん！（あつめた かず：${poolCollectedCount}）`;
   }
 
   function renderLegend(){
