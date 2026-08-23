@@ -7,7 +7,7 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>👑</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Kiwi+Maru:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Kiwi+Maru:wght@400;500&family=Press+Start+2P&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg1:#ffd9ec;
@@ -177,9 +177,9 @@
   .title-card{
     background:#fffaff;
     border-radius:28px;
-    padding:34px 24px;
+    padding:34px 20px;
     text-align:center;
-    max-width:360px;
+    max-width:400px;
     width:100%;
     box-shadow:0 10px 0 #f0d3ea, 0 20px 40px rgba(150,90,150,.25);
   }
@@ -192,34 +192,38 @@
   }
   .player-picker{
     display:flex;
-    gap:16px;
+    gap:10px;
     justify-content:center;
   }
   .player-card{
     flex:1;
+    min-width:0;
     border:none;
-    border-radius:22px;
-    padding:22px 10px;
+    border-radius:20px;
+    padding:16px 6px;
     background:linear-gradient(160deg,#fff0f8,#f3e6fb);
     cursor:pointer;
     display:flex;
     flex-direction:column;
     align-items:center;
-    gap:10px;
+    gap:8px;
     box-shadow:0 4px 0 #e8cfe0, 0 8px 16px rgba(150,90,150,.15);
     transition:transform .12s ease;
   }
   .player-card:active{transform:translateY(3px); box-shadow:0 1px 0 #e8cfe0;}
-  .player-emoji{font-size:54px;}
+  .player-emoji{font-size:42px;}
   .player-name{
     font-family:'Baloo 2', sans-serif;
     font-weight:800;
-    font-size:18px;
+    font-size:15px;
     color:var(--ink);
   }
 
   /* なおやモードでは数字とプリンセスの対応図鑑は非表示 */
-  body[data-player="naoya"] .legend{display:none;}
+  body[data-player="naoya"] .legend,
+  body[data-player="youta"] .legend{display:none;}
+  /* きせかえの人形はプリンセス専用デザインのためマイクラ画面とは相性が悪く、陽太モードでは非表示にする */
+  body[data-player="youta"] .dressup{display:none;}
 
   /* ===== なおやモード：自由入力の計算 ===== */
   .naoya-num{
@@ -678,6 +682,146 @@
     color:var(--ink-soft);
     margin-top:26px;
   }
+
+  /* ================================================================
+     陽太モード：完全マインクラフト風UI
+     ================================================================ */
+  body[data-player="youta"]{
+    background:
+      repeating-linear-gradient(0deg, rgba(0,0,0,.07) 0 4px, transparent 4px 32px),
+      repeating-linear-gradient(90deg, rgba(0,0,0,.07) 0 4px, transparent 4px 32px),
+      linear-gradient(180deg, #7ec850 0%, #7ec850 7%, #8b5a2b 7%, #6b4423 100%);
+  }
+  body[data-player="youta"] .sparkles span{filter:none; text-shadow:none;}
+
+  body[data-player="youta"] header,
+  body[data-player="youta"] .problem-card,
+  body[data-player="youta"] .dressup,
+  body[data-player="youta"] .collection{
+    background:#c6c6c6;
+    border-radius:0;
+    border:4px solid #1a1a1a;
+    box-shadow:inset -4px -4px 0 rgba(0,0,0,.35), inset 4px 4px 0 rgba(255,255,255,.5);
+    padding:14px 12px;
+  }
+  body[data-player="youta"] header{margin-bottom:14px;}
+  body[data-player="youta"] .problem-card::before{display:none;}
+
+  body[data-player="youta"] #mainWrap h1{
+    color:#3a6b2a;
+    text-shadow:2px 2px 0 #000, -1px -1px 0 #000;
+    letter-spacing:0;
+  }
+  body[data-player="youta"] header .sub{color:#3a3a3a; font-weight:700;}
+  body[data-player="youta"] .collection h2,
+  body[data-player="youta"] .dressup h2{color:#3a3a3a; text-shadow:none;}
+  body[data-player="youta"] .collection .count,
+  body[data-player="youta"] .empty-hint,
+  body[data-player="youta"] .dressup-hint{color:#4a4a4a;}
+
+  body[data-player="youta"] .sound-btn,
+  body[data-player="youta"] .switch-btn{
+    background:#8b8b8b;
+    border-radius:0;
+    box-shadow:inset -3px -3px 0 rgba(0,0,0,.4), inset 3px 3px 0 rgba(255,255,255,.4);
+  }
+  body[data-player="youta"] .sound-btn:active,
+  body[data-player="youta"] .switch-btn:active{
+    box-shadow:inset 3px 3px 0 rgba(0,0,0,.4), inset -3px -3px 0 rgba(255,255,255,.2);
+  }
+
+  body[data-player="youta"] .streak-gauge{
+    background:#8b8b8b;
+    border-radius:0;
+    box-shadow:inset -3px -3px 0 rgba(0,0,0,.4), inset 3px 3px 0 rgba(255,255,255,.3);
+  }
+
+  .mascot.mascot-pixel{
+    width:46px; height:46px;
+    display:inline-block;
+  }
+  .mascot.mascot-pixel svg{image-rendering:pixelated; display:block;}
+
+  body[data-player="youta"] .op{color:#2b2b2b; font-weight:800;}
+
+  body[data-player="youta"] .naoya-num{
+    background:#3a3a3a;
+    color:#7ee0ff;
+    border-radius:0;
+    box-shadow:inset -3px -3px 0 rgba(0,0,0,.5), inset 3px 3px 0 rgba(255,255,255,.15);
+    font-family:'Press Start 2P', 'Kiwi Maru', sans-serif;
+    font-size:18px;
+    padding:14px 10px;
+  }
+  body[data-player="youta"] .naoya-input{
+    background:#2b2b2b;
+    color:#7ee0ff;
+    border:none;
+    border-radius:0;
+    box-shadow:inset -3px -3px 0 rgba(0,0,0,.5), inset 3px 3px 0 rgba(255,255,255,.1);
+    font-family:'Press Start 2P', sans-serif;
+    font-size:20px;
+  }
+  body[data-player="youta"] .naoya-input::placeholder{color:#5a8a9a;}
+  body[data-player="youta"] .naoya-input.naoya-correct{
+    background:#1e3a1e; color:#7dff7d;
+    box-shadow:inset -3px -3px 0 rgba(0,0,0,.5), inset 3px 3px 0 rgba(120,255,120,.3);
+  }
+  body[data-player="youta"] .naoya-input.naoya-wrong{
+    background:#3a1e1e; color:#ff7d7d;
+    box-shadow:inset -3px -3px 0 rgba(0,0,0,.5), inset 3px 3px 0 rgba(255,120,120,.3);
+  }
+  body[data-player="youta"] .naoya-submit-btn{
+    background:#8b8b8b;
+    color:#fff;
+    text-shadow:2px 2px 0 #000;
+    border-radius:0;
+    box-shadow:inset -4px -4px 0 rgba(0,0,0,.4), inset 4px 4px 0 rgba(255,255,255,.4);
+    font-family:'Press Start 2P', 'Kiwi Maru', sans-serif;
+    font-size:12px;
+    padding:16px 20px;
+  }
+  body[data-player="youta"] .naoya-submit-btn:active{
+    box-shadow:inset 4px 4px 0 rgba(0,0,0,.4), inset -4px -4px 0 rgba(255,255,255,.2);
+    transform:translateY(2px);
+  }
+
+  body[data-player="youta"] .feedback.good{color:#3a8f3a; font-weight:700;}
+  body[data-player="youta"] .feedback.bad{color:#c0392b; font-weight:700;}
+
+  body[data-player="youta"] .item-slot{
+    background:#b0b0b0;
+    border-radius:0;
+    box-shadow:inset -2px -2px 0 rgba(0,0,0,.3), inset 2px 2px 0 rgba(255,255,255,.4);
+  }
+  body[data-player="youta"] .avatar-stage{
+    background:#c6c6c6;
+    border-radius:0;
+    border:4px solid #1a1a1a;
+  }
+  body[data-player="youta"] .avatar-stage::before{display:none;}
+
+  body[data-player="youta"] .modal{
+    background:#c6c6c6;
+    border-radius:0;
+    border:4px solid #1a1a1a;
+    box-shadow:inset -4px -4px 0 rgba(0,0,0,.35), inset 4px 4px 0 rgba(255,255,255,.5), 0 20px 50px rgba(0,0,0,.5);
+  }
+  body[data-player="youta"] .modal h3,
+  body[data-player="youta"] .modal .item-name{color:#2b2b2b;}
+  body[data-player="youta"] .modal button{
+    background:#8b8b8b;
+    border-radius:0;
+    box-shadow:inset -4px -4px 0 rgba(0,0,0,.4), inset 4px 4px 0 rgba(255,255,255,.4);
+    color:#fff;
+    text-shadow:1px 1px 0 #000;
+    font-family:'Press Start 2P', 'Baloo 2', sans-serif;
+    font-size:11px;
+  }
+  body[data-player="youta"] .modal button:active{
+    box-shadow:inset 4px 4px 0 rgba(0,0,0,.4), inset -4px -4px 0 rgba(255,255,255,.2);
+    transform:translateY(2px);
+  }
 </style>
 </head>
 <body>
@@ -695,6 +839,10 @@
       <button class="player-card" data-player="naoya">
         <span class="player-emoji">🤴</span>
         <span class="player-name">なおや</span>
+      </button>
+      <button class="player-card" data-player="youta">
+        <span class="player-emoji">⛏️</span>
+        <span class="player-name">陽太</span>
       </button>
     </div>
   </div>
@@ -857,7 +1005,7 @@
   </div>
 
   <div class="collection">
-    <h2>✨ プリンセスの宝箱 ✨</h2>
+    <h2 id="collectionTitle">✨ プリンセスの宝箱 ✨</h2>
     <div class="count" id="collectCount">0/100しゅるい はっけん！</div>
     <div class="item-grid" id="itemGrid"></div>
   </div>
@@ -1332,9 +1480,12 @@
   function playReward(){ beep([659.25,783.99,987.77,1174.66], 0.45); }
 
   /* ---------- 背景のきらきら生成 ---------- */
-  (function makeSparkles(){
+  function makeSparkles(){
     const el = document.getElementById("sparkles");
-    const glyphs = ["✨","⭐","💗","🌸","👑"];
+    el.innerHTML = "";
+    const glyphs = state.player === "youta"
+      ? ["⛏️","💎","🟩","🟫","⬛"]
+      : ["✨","⭐","💗","🌸","👑"];
     for(let i=0;i<16;i++){
       const s = document.createElement("span");
       s.textContent = glyphs[i % glyphs.length];
@@ -1344,7 +1495,8 @@
       s.style.fontSize = (14+Math.random()*16) + "px";
       el.appendChild(s);
     }
-  })();
+  }
+  makeSparkles();
 
   /* ---------- 問題生成 ---------- */
   let current = null;
@@ -1355,7 +1507,7 @@
   }
 
   function genProblem(){
-    if(state.player === "naoya"){
+    if(state.player === "naoya" || state.player === "youta"){
       let a,b,sum,opSymbol;
       if(Math.random() < 0.5){
         // 二桁の掛け算
@@ -1370,7 +1522,7 @@
         sum = a+b;
         opSymbol = "＋";
       }
-      current = {a,b,sum,opSymbol,mode:"naoya"};
+      current = {a,b,sum,opSymbol,mode:"free"};
       return;
     }
 
@@ -1427,7 +1579,7 @@
     document.getElementById("feedback").textContent = "";
     document.getElementById("feedback").className = "feedback";
 
-    if(current.mode === "naoya"){
+    if(current.mode === "free"){
       const {a,b,opSymbol} = current;
       eq.innerHTML = `
         <div class="naoya-num">${a}</div>
@@ -1659,7 +1811,9 @@
     });
 
     if(order.length === 0){
-      grid.innerHTML = `<div class="empty-hint">3もんれんぞく せいかいして、さいしょのアイテムを あつめよう！✨</div>`;
+      grid.innerHTML = state.player === "youta"
+        ? `<div class="empty-hint">3もんれんぞく せいかいして、さいしょのブロックを ほりだそう！⛏️</div>`
+        : `<div class="empty-hint">3もんれんぞく せいかいして、さいしょのアイテムを あつめよう！✨</div>`;
     }else{
       order.forEach(id=>{
         const it = ITEMS.find(x=>x.id===id);
@@ -1709,7 +1863,9 @@
   /* ---------- 紙吹雪演出 ---------- */
   function launchConfetti(n){
     n = n || 26;
-    const colors = Object.values(NUM_COLORS).map(c=>c.hex).filter(h=>!h.startsWith("linear"));
+    const colors = state.player === "youta"
+      ? ["#4a9e3c","#8b5a2b","#8b8b8b","#e8b923","#4ec9dd","#171717"]
+      : Object.values(NUM_COLORS).map(c=>c.hex).filter(h=>!h.startsWith("linear"));
     for(let i=0;i<n;i++){
       const p = document.createElement("div");
       p.className = "confetti-piece";
@@ -1718,6 +1874,7 @@
       p.style.height = (size*1.4)+"px";
       p.style.left = Math.random()*100 + "vw";
       p.style.background = colors[Math.floor(Math.random()*colors.length)];
+      if(state.player === "youta") p.style.borderRadius = "0";
       p.style.animationDuration = (1.6 + Math.random()*1.4) + "s";
       p.style.animationDelay = (Math.random()*0.3) + "s";
       document.body.appendChild(p);
@@ -1737,6 +1894,26 @@
   });
 
   /* ---------- プレイヤー選択 ---------- */
+  const CREEPER_ROWS = [
+    [1,2,5,6],
+    [1,2,5,6],
+    [2,3,4,5],
+    [2,3,4,5],
+    [3,4],
+    [2,3,4,5],
+    [1,2,5,6],
+    [0,1,6,7]
+  ];
+  function creeperSvg(){
+    let rects = '<rect width="8" height="8" fill="#4a9e3c"/>';
+    CREEPER_ROWS.forEach((cols,row)=>{
+      cols.forEach(col=>{
+        rects += `<rect x="${col}" y="${row}" width="1" height="1" fill="#171717"/>`;
+      });
+    });
+    return `<svg viewBox="0 0 8 8" width="100%" height="100%" shape-rendering="crispEdges">${rects}</svg>`;
+  }
+
   const PLAYER_CONFIG = {
     anna: {
       title: "👑 プリンセスたしざんランド 👑",
@@ -1747,6 +1924,11 @@
       title: "🧮 なおやさんすうチャレンジ 🧮",
       sub: "かけ算・たし算にちょうせんしてアイテムをあつめよう！",
       mascot: "🤴"
+    },
+    youta: {
+      title: "⛏️ マイクラさんすうワールド ⛏️",
+      sub: "けいさんにちょうせんしてブロックをあつめよう！",
+      mascot: null
     }
   };
 
@@ -1754,8 +1936,18 @@
     const cfg = PLAYER_CONFIG[player];
     document.getElementById("mainTitle").textContent = cfg.title;
     document.getElementById("mainSub").textContent = cfg.sub;
-    document.getElementById("mascot").textContent = cfg.mascot;
+    const mascotEl = document.getElementById("mascot");
+    if(player === "youta"){
+      mascotEl.innerHTML = creeperSvg();
+    }else{
+      mascotEl.textContent = cfg.mascot;
+    }
+    mascotEl.classList.toggle("mascot-pixel", player === "youta");
     document.body.dataset.player = player;
+    document.getElementById("collectionTitle").textContent =
+      player === "youta" ? "⛏️ たからばこ ⛏️" : "✨ プリンセスの宝箱 ✨";
+    makeSparkles();
+    renderCollection();
   }
 
   function startGame(player){
