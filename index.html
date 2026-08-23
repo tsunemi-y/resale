@@ -222,8 +222,10 @@
   /* なおやモードでは数字とプリンセスの対応図鑑は非表示 */
   body[data-player="naoya"] .legend,
   body[data-player="youta"] .legend{display:none;}
-  /* きせかえの人形はプリンセス専用デザインのためマイクラ画面とは相性が悪く、陽太モードでは非表示にする */
-  body[data-player="youta"] .dressup{display:none;}
+  /* プリンセスのきせかえ人形とマイクラのそうびコーナーは、選んだプレイヤーに応じて片方だけ表示する */
+  .dressup-mc{display:none;}
+  body[data-player="youta"] #dressupPrincess{display:none;}
+  body[data-player="youta"] #dressupMC{display:block;}
 
   /* ===== なおやモード：自由入力の計算 ===== */
   .naoya-num{
@@ -295,6 +297,16 @@
     flex-wrap:wrap;
     margin-bottom:18px;
   }
+  .free-terms-row,
+  .free-answer-row{
+    flex-basis:100%;
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+  }
+  .free-answer-row{margin-top:6px;}
   .num-chip{
     display:flex;
     flex-direction:column;
@@ -464,6 +476,9 @@
       linear-gradient(160deg, #fdeef8, #f3e6fb 55%, #eaf3ff);
     border-radius:20px;
     overflow:hidden;
+  }
+  .dressup-mc .avatar-stage{
+    aspect-ratio:200/300;
   }
   .avatar-stage::before{
     content:"";
@@ -873,7 +888,7 @@
     <div class="feedback" id="feedback"></div>
   </div>
 
-  <div class="dressup">
+  <div class="dressup" id="dressupPrincess">
     <h2>👗 きせかえコーナー 👗</h2>
     <div class="avatar-stage">
       <svg class="avatar-doll" viewBox="0 0 240 380">
@@ -1002,6 +1017,42 @@
       <div class="avatar-slot" data-shape="shoes" style="left:50%;top:97%"></div>
     </div>
     <div class="dressup-hint">したの宝箱からアイテムをタップして きせかえしよう！もう一度タップではずせるよ</div>
+  </div>
+
+  <div class="dressup dressup-mc" id="dressupMC">
+    <h2>⛏️ そうびコーナー ⛏️</h2>
+    <div class="avatar-stage">
+      <svg class="avatar-doll" viewBox="0 0 200 300">
+        <ellipse cx="100" cy="292" rx="55" ry="8" fill="rgba(0,0,0,.25)"/>
+        <g id="worn-mc-pickaxe"></g>
+        <rect x="72" y="190" width="26" height="75" fill="#3a2a1a"/>
+        <rect x="102" y="190" width="26" height="75" fill="#3a2a1a"/>
+        <rect x="70" y="258" width="30" height="14" fill="#1a1a1a"/>
+        <rect x="100" y="258" width="30" height="14" fill="#1a1a1a"/>
+        <rect x="38" y="95" width="30" height="95" fill="#c68863"/>
+        <rect x="132" y="95" width="30" height="95" fill="#c68863"/>
+        <rect x="38" y="95" width="30" height="28" fill="#3a8fd9"/>
+        <rect x="132" y="95" width="30" height="28" fill="#3a8fd9"/>
+        <rect x="65" y="95" width="70" height="95" fill="#3a8fd9"/>
+        <rect x="65" y="150" width="70" height="15" fill="#2d6cad"/>
+        <g id="worn-mc-chestplate"></g>
+        <rect x="70" y="25" width="60" height="60" fill="#c68863"/>
+        <rect x="82" y="48" width="9" height="9" fill="#2b2b2b"/>
+        <rect x="109" y="48" width="9" height="9" fill="#2b2b2b"/>
+        <rect x="88" y="65" width="24" height="5" fill="#8a5a3a"/>
+        <g id="worn-mc-helmet"></g>
+        <g id="worn-mc-sword"></g>
+        <g id="worn-mc-axe"></g>
+        <g id="worn-mc-shovel"></g>
+      </svg>
+      <div class="avatar-slot" data-shape="pickaxe" style="left:50%;top:18%"></div>
+      <div class="avatar-slot" data-shape="helmet" style="left:50%;top:9%"></div>
+      <div class="avatar-slot" data-shape="chestplate" style="left:50%;top:40%"></div>
+      <div class="avatar-slot" data-shape="sword" style="left:79%;top:42%"></div>
+      <div class="avatar-slot" data-shape="axe" style="left:21%;top:42%"></div>
+      <div class="avatar-slot" data-shape="shovel" style="left:76%;top:58%"></div>
+    </div>
+    <div class="dressup-hint">したのたからばこからアイテムをタップして そうびしよう！もう一度タップではずせるよ</div>
   </div>
 
   <div class="collection">
@@ -1493,6 +1544,45 @@
     return defs + `<g class="worn-item">${tpl(fill)}</g>`;
   }
 
+  /* ---------- 陽太モード：そうび（実際に身につけて見えるマイクラ装備） ---------- */
+  const MC_EQUIP_SHAPES = ["helmet","chestplate","sword","axe","pickaxe","shovel"];
+
+  const WORN_MC = {
+    helmet: c => `
+      <path d="M68,25 L132,25 L132,50 L120,50 L120,38 L80,38 L80,50 L68,50 Z" fill="${c}" stroke="rgba(0,0,0,.3)" stroke-width="2"/>`,
+    chestplate: c => `
+      <rect x="63" y="93" width="74" height="72" fill="${c}" stroke="rgba(0,0,0,.3)" stroke-width="2"/>
+      <rect x="90" y="93" width="20" height="72" fill="rgba(0,0,0,.15)"/>`,
+    sword: c => `
+      <g transform="translate(150,135) rotate(15)">
+        <rect x="-4" y="-45" width="8" height="50" fill="${c}" stroke="rgba(0,0,0,.3)" stroke-width="1.5"/>
+        <rect x="-15" y="5" width="30" height="9" fill="#8b5a2b"/>
+        <rect x="-4" y="14" width="8" height="18" fill="#5a3a1a"/>
+      </g>`,
+    axe: c => `
+      <g transform="translate(50,135) rotate(-15)">
+        <path d="M-4,-45 L-4,-10 L-22,-20 Q-22,-40 -4,-45 Z" fill="${c}" stroke="rgba(0,0,0,.3)" stroke-width="1.5"/>
+        <rect x="-4" y="-45" width="8" height="65" fill="#8b5a2b"/>
+      </g>`,
+    pickaxe: c => `
+      <g transform="translate(100,60) rotate(30)">
+        <path d="M-35,0 Q0,-18 35,0 L25,10 Q0,-2 -25,10 Z" fill="${c}" stroke="rgba(0,0,0,.3)" stroke-width="1.5"/>
+        <rect x="-4" y="0" width="8" height="70" fill="#8b5a2b"/>
+      </g>`,
+    shovel: c => `
+      <g transform="translate(148,175) rotate(10)">
+        <path d="M-9,-18 Q9,-18 9,-4 Q9,6 0,6 Q-9,6 -9,-4 Z" fill="${c}" stroke="rgba(0,0,0,.3)" stroke-width="1.5"/>
+        <rect x="-3" y="6" width="6" height="35" fill="#8b5a2b"/>
+      </g>`
+  };
+
+  function wornMarkupMC(item){
+    const tpl = WORN_MC[item.shape];
+    if(!tpl) return "";
+    const material = MATERIALS_MC.find(m=>m.id===item.material);
+    return `<g class="worn-item">${tpl(material.hex)}</g>`;
+  }
+
   /* ---------- 状態管理 ---------- */
   const SAVE_KEY = "princess-math-game-v1";
   let state = loadState();
@@ -1508,7 +1598,7 @@
     if(typeof s.streak !== "number") s.streak = 0;
     if(typeof s.muted !== "boolean") s.muted = false;
     if(!s.equipped || typeof s.equipped !== "object") s.equipped = {};
-    if(s.player !== "anna" && s.player !== "naoya") s.player = null;
+    if(!["anna","naoya","youta"].includes(s.player)) s.player = null;
     return s;
   }
   function saveState(){
@@ -1679,10 +1769,12 @@
         .map(t=>`<div class="naoya-num">${t}</div>`)
         .join(`<div class="op">${opSymbol}</div>`);
       eq.innerHTML = `
-        ${termsHtml}
-        <div class="op">＝</div>
-        <div class="naoya-input-wrap">
-          <input type="number" inputmode="numeric" id="naoyaInput" class="naoya-input" placeholder="？" autocomplete="off">
+        <div class="free-terms-row">${termsHtml}</div>
+        <div class="free-answer-row">
+          <div class="op">＝</div>
+          <div class="naoya-input-wrap">
+            <input type="number" inputmode="numeric" id="naoyaInput" class="naoya-input" placeholder="？" autocomplete="off">
+          </div>
         </div>
       `;
       ch.innerHTML = `<button class="naoya-submit-btn" id="naoyaSubmit">こたえる ➜</button>`;
@@ -1882,6 +1974,14 @@
     });
     const defaultShoes = document.getElementById("worn-shoes-default");
     if(defaultShoes) defaultShoes.style.display = state.equipped.shoes ? "none" : "";
+
+    MC_EQUIP_SHAPES.forEach(shapeId=>{
+      const g = document.getElementById(`worn-mc-${shapeId}`);
+      if(!g) return;
+      const itemId = state.equipped[shapeId];
+      const item = itemId ? ITEMS.find(i=>i.id===itemId) : null;
+      g.innerHTML = item ? wornMarkupMC(item) : "";
+    });
   }
 
   document.querySelectorAll(".avatar-slot").forEach(slot=>{
@@ -1919,10 +2019,11 @@
     }else{
       order.forEach(id=>{
         const it = ITEMS.find(x=>x.id===id);
-        const isWorn = pool === "princess" && state.equipped[it.shape] === id;
+        const equippable = pool === "princess" || (pool === "minecraft" && MC_EQUIP_SHAPES.includes(it.shape));
+        const isWorn = equippable && state.equipped[it.shape] === id;
         const slot = document.createElement("div");
         slot.className = "item-slot" + (isWorn ? " equipped" : "");
-        slot.title = it.name + (isWorn ? "（そうちゅう・タップではずす）" : pool === "princess" ? "（タップできせかえ）" : "");
+        slot.title = it.name + (isWorn ? "（そうび中・タップではずす）" : equippable ? "（タップでそうび）" : "");
         slot.innerHTML = `<svg viewBox="0 0 100 100">${itemIconInner(it)}</svg>`;
         if(isWorn){
           const w = document.createElement("span");
@@ -1936,7 +2037,7 @@
           b.textContent = "×" + counts[id];
           slot.appendChild(b);
         }
-        if(pool === "princess") slot.addEventListener("click", ()=>toggleEquip(id));
+        if(equippable) slot.addEventListener("click", ()=>toggleEquip(id));
         grid.appendChild(slot);
       });
     }
