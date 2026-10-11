@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>ひらがな にこにこ ひろば</title>
+<title>あんなの なまえを おぼえよう</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌸</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -220,8 +220,8 @@
 
 <div class="wrap">
   <header>
-    <h1>🌸 ひらがな にこにこ ひろば 🌸</h1>
-    <div class="sub">もじを みて・きいて・なぞって おぼえよう！</div>
+    <h1>🌸 あんなの なまえを おぼえよう 🌸</h1>
+    <div class="sub">「つねみあんな」の もじで れんしゅうしよう！</div>
   </header>
 
   <div class="top-row">
@@ -309,6 +309,11 @@
   const HIRAGANA = [];
   HIRAGANA_ROWS.forEach(row=>row.forEach(([char,word,emoji])=>HIRAGANA.push({char,word,emoji})));
 
+  /* ---------- とりあえず「つねみあんな」の文字だけで練習する ---------- */
+  const NAME_GROUPS = [["つ","ね","み"],["あ","ん","な"]];
+  const NAME_CHARS = NAME_GROUPS.flat();
+  const ACTIVE = NAME_CHARS.map(c => HIRAGANA.find(h => h.char === c));
+
   /* ---------- 状態管理 ---------- */
   const SAVE_KEY = "hiragana-app-v1";
   let state = loadState();
@@ -336,10 +341,10 @@
     updateProgressPill();
   }
   function practicedCount(){
-    return HIRAGANA.filter(h=>(state.progress[h.char]||0) > 0).length;
+    return ACTIVE.filter(h=>(state.progress[h.char]||0) > 0).length;
   }
   function updateProgressPill(){
-    document.getElementById("progressPill").textContent = `おぼえたもじ：${practicedCount()}/${HIRAGANA.length}`;
+    document.getElementById("progressPill").textContent = `おぼえたもじ：${practicedCount()}/${ACTIVE.length}`;
   }
 
   /* ---------- おと ---------- */
@@ -416,10 +421,10 @@
   function renderTable(){
     const card = document.getElementById("tableCard");
     card.innerHTML = "";
-    HIRAGANA_ROWS.forEach(row=>{
+    NAME_GROUPS.forEach(row=>{
       const rowEl = document.createElement("div");
       rowEl.className = "char-row";
-      row.forEach(([char])=>{
+      row.forEach(char=>{
         const btn = document.createElement("button");
         btn.className = "char-btn";
         btn.textContent = char;
@@ -454,9 +459,9 @@
   function nextQuizRound(){
     document.getElementById("quizFeedback").textContent = "";
     document.getElementById("quizFeedback").className = "quiz-feedback";
-    quizTarget = HIRAGANA[Math.floor(Math.random()*HIRAGANA.length)];
+    quizTarget = ACTIVE[Math.floor(Math.random()*ACTIVE.length)];
 
-    const pool = HIRAGANA.filter(h=>h.char !== quizTarget.char);
+    const pool = ACTIVE.filter(h=>h.char !== quizTarget.char);
     shuffle(pool);
     const choices = shuffle([quizTarget, ...pool.slice(0,3)]);
 
@@ -562,34 +567,35 @@
   function clearCanvas(){ ctx.clearRect(0,0,canvas.width,canvas.height); }
 
   function renderTrace(){
-    const h = HIRAGANA[state.traceIndex];
+    if(state.traceIndex >= ACTIVE.length || state.traceIndex < 0) state.traceIndex = 0;
+    const h = ACTIVE[state.traceIndex];
     document.getElementById("ghostChar").textContent = h.char;
     document.getElementById("traceWord").textContent = `${h.emoji} 「${h.word}」の「${h.char}」`;
     clearCanvas();
   }
 
   document.getElementById("tracePrev").addEventListener("click", ()=>{
-    state.traceIndex = (state.traceIndex - 1 + HIRAGANA.length) % HIRAGANA.length;
+    state.traceIndex = (state.traceIndex - 1 + ACTIVE.length) % ACTIVE.length;
     saveState();
     renderTrace();
   });
   document.getElementById("traceNext").addEventListener("click", ()=>{
-    state.traceIndex = (state.traceIndex + 1) % HIRAGANA.length;
+    state.traceIndex = (state.traceIndex + 1) % ACTIVE.length;
     saveState();
     renderTrace();
   });
   document.getElementById("traceSpeak").addEventListener("click", ()=>{
-    speak(HIRAGANA[state.traceIndex].char);
+    speak(ACTIVE[state.traceIndex].char);
   });
   document.getElementById("traceClear").addEventListener("click", clearCanvas);
   document.getElementById("traceDone").addEventListener("click", ()=>{
-    const h = HIRAGANA[state.traceIndex];
+    const h = ACTIVE[state.traceIndex];
     markPracticed(h.char);
     mascotHappy();
     launchConfetti(30);
     renderTable();
     setTimeout(()=>{
-      state.traceIndex = (state.traceIndex + 1) % HIRAGANA.length;
+      state.traceIndex = (state.traceIndex + 1) % ACTIVE.length;
       saveState();
       renderTrace();
     }, 700);
