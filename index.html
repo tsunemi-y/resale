@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>あんなの なまえを おぼえよう</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌸</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hachi+Maru+Pop&family=Kosugi+Maru&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sky:#bfe8ff;
+    --sun:#fff3c4;
+    --pink:#ffd3e6;
+    --ink:#5a4a3a;
+    --ink-soft:#9a8a78;
+    --card:#fffdf6;
+    --accent:#ff8fb3;
+    --accent-deep:#ef5c8e;
+    --good:#4caf7d;
+    --bad:#ef6f6f;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;min-height:100%;font-family:'Kosugi Maru',sans-serif;color:var(--ink);overflow-x:hidden;}
+  body{
+    background:linear-gradient(170deg,var(--sky) 0%,var(--sun) 55%,var(--pink) 100%);
+    min-height:100vh;
+  }
+  .wrap{max-width:640px;margin:0 auto;padding:16px 14px 50px;}
+
+  header{text-align:center;margin-bottom:12px;}
+  h1{
+    font-family:'Hachi Maru Pop',sans-serif;
+    font-size:clamp(22px,6.5vw,32px);
+    color:var(--accent-deep);
+    margin:6px 0 4px;
+    text-shadow:2px 2px 0 #fff,-1px -1px 0 #fff;
+  }
+  header .sub{font-size:13px;color:var(--ink-soft);}
+
+  .top-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 0 16px;}
+  .mascot-box{display:flex;align-items:center;gap:10px;}
+  .mascot{font-size:44px;display:inline-block;animation:bob 2.6s ease-in-out infinite;}
+  @keyframes bob{0%,100%{transform:translateY(0) rotate(-3deg);}50%{transform:translateY(-6px) rotate(3deg);}}
+  .mascot.happy{animation:happyjump .5s ease;}
+  @keyframes happyjump{
+    0%{transform:translateY(0) scale(1);}
+    30%{transform:translateY(-20px) scale(1.15) rotate(-8deg);}
+    60%{transform:translateY(-4px) scale(1.05) rotate(6deg);}
+    100%{transform:translateY(0) scale(1);}
+  }
+  .mascot.oops{animation:oopsshake .5s ease;}
+  @keyframes oopsshake{
+    0%,100%{transform:translateX(0) rotate(0);}
+    25%{transform:translateX(-6px) rotate(-6deg);}
+    75%{transform:translateX(6px) rotate(6deg);}
+  }
+  .progress-pill{
+    background:#fff;
+    padding:8px 14px;
+    border-radius:20px;
+    font-size:13px;
+    font-weight:700;
+    color:var(--accent-deep);
+    box-shadow:0 3px 0 #f0d9e0,0 6px 14px rgba(150,110,90,.12);
+  }
+  .sound-btn{
+    border:none;background:#fff;width:42px;height:42px;border-radius:50%;
+    font-size:18px;box-shadow:0 3px 0 #f0d9e0,0 6px 14px rgba(150,110,90,.12);cursor:pointer;
+  }
+
+  /* ===== モード切り替え ===== */
+  .mode-tabs{display:flex;gap:8px;margin-bottom:16px;}
+  .mode-tab{
+    flex:1;border:none;border-radius:16px;padding:12px 6px;cursor:pointer;
+    background:#fff;color:var(--ink-soft);font-family:'Hachi Maru Pop',sans-serif;font-size:13px;
+    box-shadow:0 3px 0 #e8ddd0,0 6px 12px rgba(150,110,90,.1);
+    display:flex;flex-direction:column;align-items:center;gap:4px;
+    transition:transform .12s ease;
+  }
+  .mode-tab .icon{font-size:22px;}
+  .mode-tab.active{background:var(--accent);color:#fff;box-shadow:0 3px 0 var(--accent-deep),0 6px 14px rgba(239,92,142,.3);}
+  .mode-tab:active{transform:translateY(2px);}
+
+  .view{display:none;}
+  .view.active{display:block;}
+
+  .card{
+    background:var(--card);
+    border-radius:26px;
+    padding:18px 14px;
+    box-shadow:0 6px 0 #f0e2cf,0 14px 28px rgba(150,110,90,.15);
+    margin-bottom:16px;
+  }
+
+  /* ===== もじひょう ===== */
+  .char-row{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-bottom:10px;}
+  .char-row:last-child{margin-bottom:0;}
+  .char-btn{
+    position:relative;
+    width:56px;height:56px;
+    border:none;border-radius:16px;
+    background:linear-gradient(160deg,#fff,#ffeef5);
+    font-family:'Kosugi Maru',sans-serif;
+    font-size:26px;color:var(--ink);
+    cursor:pointer;
+    box-shadow:0 3px 0 #e8c9d6,0 5px 10px rgba(150,80,110,.12);
+    transition:transform .1s ease;
+  }
+  .char-btn:active{transform:translateY(2px) scale(.96);}
+  .char-btn .star{
+    position:absolute;top:-6px;right:-6px;font-size:16px;
+    filter:drop-shadow(0 1px 1px rgba(0,0,0,.2));
+  }
+
+  /* ===== きくもんだい ===== */
+  .quiz-prompt{text-align:center;margin-bottom:14px;}
+  .quiz-prompt p{font-size:14px;color:var(--ink-soft);margin:0 0 10px;}
+  .replay-btn{
+    border:none;background:var(--sky);color:var(--ink);
+    font-family:'Hachi Maru Pop',sans-serif;font-size:14px;
+    padding:10px 20px;border-radius:18px;cursor:pointer;
+    box-shadow:0 3px 0 #8fd0ec;
+  }
+  .replay-btn:active{transform:translateY(2px);box-shadow:0 1px 0 #8fd0ec;}
+  .quiz-choices{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;}
+  .quiz-choice{
+    width:84px;height:84px;border:none;border-radius:20px;
+    background:linear-gradient(160deg,#fff,#fff0d8);
+    font-family:'Kosugi Maru',sans-serif;font-size:36px;color:var(--ink);
+    cursor:pointer;
+    box-shadow:0 4px 0 #e8d0a0,0 8px 16px rgba(150,110,60,.15);
+    transition:transform .1s ease;
+  }
+  .quiz-choice:active{transform:translateY(2px);}
+  .quiz-choice.correct-flash{outline:5px solid #ffe066;animation:pulse .5s ease;}
+  .quiz-choice.wrong-flash{filter:grayscale(.5) brightness(.9);}
+  @keyframes pulse{0%{transform:scale(1);}40%{transform:scale(1.14);}100%{transform:scale(1);}}
+  .streak-gauge{display:flex;justify-content:center;gap:6px;margin:14px 0 4px;}
+  .streak-gauge .heart{font-size:20px;opacity:.25;transition:all .25s ease;}
+  .streak-gauge .heart.on{opacity:1;transform:scale(1.2);}
+  .quiz-feedback{text-align:center;min-height:26px;font-size:16px;font-weight:700;margin-top:10px;}
+  .quiz-feedback.good{color:var(--good);}
+  .quiz-feedback.bad{color:var(--bad);}
+
+  /* ===== なぞりがき ===== */
+  .trace-nav{display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:10px;}
+  .trace-nav button{
+    border:none;background:#fff;width:40px;height:40px;border-radius:50%;
+    font-size:18px;cursor:pointer;box-shadow:0 3px 0 #e8ddd0;
+  }
+  .trace-nav button:active{transform:translateY(2px);}
+  .trace-word{text-align:center;font-size:14px;color:var(--ink-soft);margin-bottom:10px;}
+  .trace-stage{
+    position:relative;
+    width:min(300px,78vw);
+    aspect-ratio:1;
+    margin:0 auto 14px;
+    background:repeating-linear-gradient(#fbf2df,#fbf2df 100%);
+    border:3px dashed #e0c99a;
+    border-radius:20px;
+    overflow:hidden;
+  }
+  .ghost-char{
+    position:absolute;inset:0;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Kosugi Maru',sans-serif;
+    font-size:min(220px,62vw);
+    color:#e4d4ba;
+    user-select:none;
+    pointer-events:none;
+  }
+  #traceCanvas{
+    position:absolute;inset:0;width:100%;height:100%;
+    touch-action:none;cursor:crosshair;
+  }
+  .trace-actions{display:flex;justify-content:center;gap:12px;}
+  .trace-actions button{
+    border:none;border-radius:18px;padding:12px 22px;
+    font-family:'Hachi Maru Pop',sans-serif;font-size:14px;cursor:pointer;
+  }
+  .btn-clear{background:#fff;color:var(--ink-soft);box-shadow:0 3px 0 #e8ddd0;}
+  .btn-done{background:var(--accent);color:#fff;box-shadow:0 3px 0 var(--accent-deep);}
+  .trace-actions button:active{transform:translateY(2px);}
+
+  /* 紙吹雪 */
+  .confetti-piece{
+    position:fixed;top:-10px;z-index:30;pointer-events:none;border-radius:2px;
+    animation:fall 2.2s linear forwards;
+  }
+  @keyframes fall{to{transform:translateY(110vh) rotate(540deg);opacity:.2;}}
+
+  /* ごほうびモーダル */
+  .modal-back{
+    position:fixed;inset:0;background:rgba(120,90,70,.4);
+    display:flex;align-items:center;justify-content:center;z-index:50;padding:20px;
+    opacity:0;pointer-events:none;transition:opacity .25s ease;
+  }
+  .modal-back.show{opacity:1;pointer-events:auto;}
+  .modal{
+    background:#fffaf0;border-radius:26px;padding:26px 22px;max-width:300px;width:100%;
+    text-align:center;box-shadow:0 20px 50px rgba(100,60,40,.3);
+    transform:scale(.7);transition:transform .3s cubic-bezier(.34,1.56,.64,1);
+  }
+  .modal-back.show .modal{transform:scale(1);}
+  .modal .sticker{font-size:64px;margin-bottom:10px;animation:spinin .6s ease;}
+  @keyframes spinin{0%{transform:scale(.3) rotate(-30deg);opacity:0;}100%{transform:scale(1) rotate(0);opacity:1;}}
+  .modal h3{font-family:'Hachi Maru Pop',sans-serif;color:var(--accent-deep);font-size:18px;margin:4px 0 14px;}
+  .modal button{
+    border:none;background:var(--accent);color:#fff;font-family:'Hachi Maru Pop',sans-serif;
+    font-size:15px;padding:11px 26px;border-radius:18px;cursor:pointer;box-shadow:0 4px 0 var(--accent-deep);
+  }
+  .modal button:active{transform:translateY(3px);box-shadow:0 1px 0 var(--accent-deep);}
+
+  footer{text-align:center;font-size:11px;color:var(--ink-soft);margin-top:20px;}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <h1>🌸 あんなの なまえを おぼえよう 🌸</h1>
+    <div class="sub">「つねみあんな」の もじで れんしゅうしよう！</div>
+  </header>
+
+  <div class="top-row">
+    <div class="mascot-box">
+      <span class="mascot" id="mascot">🐰</span>
+      <div class="progress-pill" id="progressPill">おぼえたもじ：0/46</div>
+    </div>
+    <button class="sound-btn" id="soundBtn" title="おと ON/OFF">🔊</button>
+  </div>
+
+  <div class="mode-tabs">
+    <button class="mode-tab active" data-mode="table"><span class="icon">📖</span>もじひょう</button>
+    <button class="mode-tab" data-mode="quiz"><span class="icon">👂</span>きくもんだい</button>
+    <button class="mode-tab" data-mode="trace"><span class="icon">✏️</span>なぞりがき</button>
+  </div>
+
+  <!-- もじひょう -->
+  <div class="view active" id="viewTable">
+    <div class="card" id="tableCard"></div>
+  </div>
+
+  <!-- きくもんだい -->
+  <div class="view" id="viewQuiz">
+    <div class="card">
+      <div class="quiz-prompt">
+        <p>きこえた もじを タップしてね</p>
+        <button class="replay-btn" id="replayBtn">🔊 もういちど きく</button>
+      </div>
+      <div class="quiz-choices" id="quizChoices"></div>
+      <div class="streak-gauge" id="streakGauge">
+        <span class="heart">💗</span><span class="heart">💗</span><span class="heart">💗</span>
+      </div>
+      <div class="quiz-feedback" id="quizFeedback"></div>
+    </div>
+  </div>
+
+  <!-- なぞりがき -->
+  <div class="view" id="viewTrace">
+    <div class="card">
+      <div class="trace-nav">
+        <button id="tracePrev">◀</button>
+        <button id="traceSpeak">🔊 きく</button>
+        <button id="traceNext">▶</button>
+      </div>
+      <div class="trace-word" id="traceWord"></div>
+      <div class="trace-stage">
+        <div class="ghost-char" id="ghostChar"></div>
+        <canvas id="traceCanvas" width="300" height="300"></canvas>
+      </div>
+      <div class="trace-actions">
+        <button class="btn-clear" id="traceClear">🧹 けす</button>
+        <button class="btn-done" id="traceDone">✅ できた！</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>3もんれんぞくで せいかいすると シールが もらえるよ ✨</footer>
+</div>
+
+<div class="modal-back" id="modalBack">
+  <div class="modal">
+    <div class="sticker" id="modalSticker">⭐</div>
+    <h3 id="modalText">3もんれんぞく せいかい！</h3>
+    <button id="modalClose">やったー！</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  const HIRAGANA_ROWS = [
+    [["あ","あひる","🦆"],["い","いぬ","🐶"],["う","うま","🐴"],["え","えんぴつ","✏️"],["お","おさかな","🐟"]],
+    [["か","かに","🦀"],["き","きりん","🦒"],["く","くつ","👟"],["け","けーき","🍰"],["こ","こあら","🐨"]],
+    [["さ","さる","🐵"],["し","しまうま","🦓"],["す","すいか","🍉"],["せ","せみ","🦗"],["そ","そら","☁️"]],
+    [["た","たこ","🐙"],["ち","ちょうちょ","🦋"],["つ","つき","🌙"],["て","てがみ","✉️"],["と","とり","🐦"]],
+    [["な","なす","🍆"],["に","にじ","🌈"],["ぬ","ぬいぐるみ","🧸"],["ね","ねこ","🐱"],["の","のはら","🌱"]],
+    [["は","はな","🌸"],["ひ","ひまわり","🌻"],["ふ","ふうせん","🎈"],["へ","へび","🐍"],["ほ","ほし","⭐"]],
+    [["ま","まめ","🫘"],["み","みかん","🍊"],["む","むし","🐛"],["め","めがね","👓"],["も","もも","🍑"]],
+    [["や","やま","⛰️"],["ゆ","ゆき","❄️"],["よ","よっと","⛵"]],
+    [["ら","らいおん","🦁"],["り","りんご","🍎"],["る","るーぺ","🔍"],["れ","れもん","🍋"],["ろ","ろうそく","🕯️"]],
+    [["わ","わに","🐊"],["を","を","📝"],["ん","ん","💫"]]
+  ];
+
+  const HIRAGANA = [];
+  HIRAGANA_ROWS.forEach(row=>row.forEach(([char,word,emoji])=>HIRAGANA.push({char,word,emoji})));
+
+  /* ---------- とりあえず「つねみあんな」の文字だけで練習する ---------- */
+  const NAME_GROUPS = [["つ","ね","み"],["あ","ん","な"]];
+  const NAME_CHARS = NAME_GROUPS.flat();
+  const ACTIVE = NAME_CHARS.map(c => HIRAGANA.find(h => h.char === c));
+
+  /* ---------- 状態管理 ---------- */
+  const SAVE_KEY = "hiragana-app-v1";
+  let state = loadState();
+
+  function loadState(){
+    let s = null;
+    try{
+      const raw = localStorage.getItem(SAVE_KEY);
+      if(raw) s = JSON.parse(raw);
+    }catch(e){}
+    if(!s) s = {};
+    if(!s.progress || typeof s.progress !== "object") s.progress = {};
+    if(typeof s.muted !== "boolean") s.muted = false;
+    if(typeof s.streak !== "number") s.streak = 0;
+    if(typeof s.traceIndex !== "number") s.traceIndex = 0;
+    return s;
+  }
+  function saveState(){
+    try{ localStorage.setItem(SAVE_KEY, JSON.stringify(state)); }catch(e){}
+  }
+
+  function markPracticed(char){
+    state.progress[char] = (state.progress[char]||0) + 1;
+    saveState();
+    updateProgressPill();
+  }
+  function practicedCount(){
+    return ACTIVE.filter(h=>(state.progress[h.char]||0) > 0).length;
+  }
+  function updateProgressPill(){
+    document.getElementById("progressPill").textContent = `おぼえたもじ：${practicedCount()}/${ACTIVE.length}`;
+  }
+
+  /* ---------- おと ---------- */
+  function speak(text){
+    if(state.muted) return;
+    try{
+      if(!window.speechSynthesis) return;
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = "ja-JP";
+      u.rate = 0.75;
+      u.pitch = 1.1;
+      speechSynthesis.speak(u);
+    }catch(e){}
+  }
+
+  const soundBtn = document.getElementById("soundBtn");
+  function refreshSoundBtn(){ soundBtn.textContent = state.muted ? "🔇" : "🔊"; }
+  soundBtn.addEventListener("click", ()=>{
+    state.muted = !state.muted;
+    saveState();
+    refreshSoundBtn();
+  });
+
+  /* ---------- マスコット ---------- */
+  const mascot = document.getElementById("mascot");
+  function mascotHappy(){ mascot.className = "mascot happy"; setTimeout(()=>mascot.className="mascot", 550); }
+  function mascotOops(){ mascot.className = "mascot oops"; setTimeout(()=>mascot.className="mascot", 550); }
+
+  /* ---------- 紙吹雪 ---------- */
+  function launchConfetti(n){
+    n = n || 24;
+    const colors = ["#ff8fb3","#ffd166","#8fd0ec","#9ee6a8","#c9a8ff"];
+    for(let i=0;i<n;i++){
+      const p = document.createElement("div");
+      p.className = "confetti-piece";
+      const size = 6 + Math.random()*6;
+      p.style.width = size+"px";
+      p.style.height = (size*1.4)+"px";
+      p.style.left = Math.random()*100 + "vw";
+      p.style.background = colors[Math.floor(Math.random()*colors.length)];
+      p.style.animationDuration = (1.5 + Math.random()*1.2) + "s";
+      p.style.animationDelay = (Math.random()*0.3) + "s";
+      document.body.appendChild(p);
+      setTimeout(()=>p.remove(), 3000);
+    }
+  }
+
+  /* ---------- ごほうび ---------- */
+  const STICKERS = ["⭐","🌟","💖","🎀","🌸","🍀","🦋","🌈","🍓","🧁"];
+  function showReward(){
+    document.getElementById("modalSticker").textContent = STICKERS[Math.floor(Math.random()*STICKERS.length)];
+    document.getElementById("modalBack").classList.add("show");
+    launchConfetti(50);
+  }
+  document.getElementById("modalClose").addEventListener("click", ()=>{
+    document.getElementById("modalBack").classList.remove("show");
+  });
+
+  /* ---------- モード切り替え ---------- */
+  const views = { table: document.getElementById("viewTable"), quiz: document.getElementById("viewQuiz"), trace: document.getElementById("viewTrace") };
+  document.querySelectorAll(".mode-tab").forEach(tab=>{
+    tab.addEventListener("click", ()=>{
+      document.querySelectorAll(".mode-tab").forEach(t=>t.classList.remove("active"));
+      tab.classList.add("active");
+      Object.values(views).forEach(v=>v.classList.remove("active"));
+      views[tab.dataset.mode].classList.add("active");
+      if(tab.dataset.mode === "quiz") nextQuizRound();
+      if(tab.dataset.mode === "trace") renderTrace();
+    });
+  });
+
+  /* ---------- もじひょう ---------- */
+  function renderTable(){
+    const card = document.getElementById("tableCard");
+    card.innerHTML = "";
+    NAME_GROUPS.forEach(row=>{
+      const rowEl = document.createElement("div");
+      rowEl.className = "char-row";
+      row.forEach(char=>{
+        const btn = document.createElement("button");
+        btn.className = "char-btn";
+        btn.textContent = char;
+        if((state.progress[char]||0) > 0){
+          const star = document.createElement("span");
+          star.className = "star";
+          star.textContent = "⭐";
+          btn.appendChild(star);
+        }
+        btn.addEventListener("click", ()=>{
+          speak(char);
+          btn.style.transform = "scale(1.15)";
+          setTimeout(()=>btn.style.transform = "", 150);
+        });
+        rowEl.appendChild(btn);
+      });
+      card.appendChild(rowEl);
+    });
+  }
+
+  /* ---------- きくもんだい ---------- */
+  let quizTarget = null;
+
+  function shuffle(arr){
+    for(let i=arr.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [arr[i],arr[j]] = [arr[j],arr[i]];
+    }
+    return arr;
+  }
+
+  function nextQuizRound(){
+    document.getElementById("quizFeedback").textContent = "";
+    document.getElementById("quizFeedback").className = "quiz-feedback";
+    quizTarget = ACTIVE[Math.floor(Math.random()*ACTIVE.length)];
+
+    const pool = ACTIVE.filter(h=>h.char !== quizTarget.char);
+    shuffle(pool);
+    const choices = shuffle([quizTarget, ...pool.slice(0,3)]);
+
+    const ch = document.getElementById("quizChoices");
+    ch.innerHTML = "";
+    choices.forEach(h=>{
+      const btn = document.createElement("button");
+      btn.className = "quiz-choice";
+      btn.textContent = h.char;
+      btn.addEventListener("click", ()=>onQuizAnswer(h.char, btn));
+      ch.appendChild(btn);
+    });
+
+    setTimeout(()=>speak(quizTarget.char), 300);
+  }
+
+  document.getElementById("replayBtn").addEventListener("click", ()=>{
+    if(quizTarget) speak(quizTarget.char);
+  });
+
+  function onQuizAnswer(char, btn){
+    document.querySelectorAll(".quiz-choice").forEach(b=>b.disabled = true);
+    const fb = document.getElementById("quizFeedback");
+
+    if(char === quizTarget.char){
+      btn.classList.add("correct-flash");
+      fb.textContent = "せいかい！すごいね💖";
+      fb.className = "quiz-feedback good";
+      mascotHappy();
+      launchConfetti();
+      markPracticed(char);
+      state.streak++;
+      updateStreakGauge();
+      saveState();
+
+      if(state.streak >= 3){
+        state.streak = 0;
+        saveState();
+        setTimeout(()=>{ updateStreakGauge(); showReward(); }, 500);
+        setTimeout(nextQuizRound, 1600);
+      }else{
+        setTimeout(nextQuizRound, 1100);
+      }
+    }else{
+      btn.classList.add("wrong-flash");
+      document.querySelectorAll(".quiz-choice").forEach(b=>{
+        if(b.textContent === quizTarget.char) b.classList.add("correct-flash");
+      });
+      fb.textContent = `おしい！「${quizTarget.char}」だったよ。もういっかい！`;
+      fb.className = "quiz-feedback bad";
+      mascotOops();
+      state.streak = 0;
+      updateStreakGauge();
+      saveState();
+      setTimeout(nextQuizRound, 1700);
+    }
+  }
+
+  function updateStreakGauge(){
+    document.querySelectorAll("#streakGauge .heart").forEach((h,i)=>{
+      h.classList.toggle("on", i < state.streak);
+    });
+  }
+
+  /* ---------- なぞりがき ---------- */
+  const canvas = document.getElementById("traceCanvas");
+  const ctx = canvas.getContext("2d");
+  ctx.strokeStyle = "#ef5c8e";
+  ctx.lineWidth = 14;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  let drawing = false;
+  let lastX = 0, lastY = 0;
+
+  function posFromEvent(e){
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    return { x:(e.clientX-rect.left)*scaleX, y:(e.clientY-rect.top)*scaleY };
+  }
+  canvas.addEventListener("pointerdown", e=>{
+    drawing = true;
+    canvas.setPointerCapture(e.pointerId);
+    const p = posFromEvent(e);
+    lastX = p.x; lastY = p.y;
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,ctx.lineWidth/2,0,Math.PI*2);
+    ctx.fillStyle = ctx.strokeStyle;
+    ctx.fill();
+  });
+  canvas.addEventListener("pointermove", e=>{
+    if(!drawing) return;
+    const p = posFromEvent(e);
+    ctx.beginPath();
+    ctx.moveTo(lastX,lastY);
+    ctx.lineTo(p.x,p.y);
+    ctx.stroke();
+    lastX = p.x; lastY = p.y;
+  });
+  canvas.addEventListener("pointerup", ()=>{ drawing = false; });
+  canvas.addEventListener("pointerleave", ()=>{ drawing = false; });
+
+  function clearCanvas(){ ctx.clearRect(0,0,canvas.width,canvas.height); }
+
+  function renderTrace(){
+    if(state.traceIndex >= ACTIVE.length || state.traceIndex < 0) state.traceIndex = 0;
+    const h = ACTIVE[state.traceIndex];
+    document.getElementById("ghostChar").textContent = h.char;
+    document.getElementById("traceWord").textContent = `${h.emoji} 「${h.word}」の「${h.char}」`;
+    clearCanvas();
+  }
+
+  document.getElementById("tracePrev").addEventListener("click", ()=>{
+    state.traceIndex = (state.traceIndex - 1 + ACTIVE.length) % ACTIVE.length;
+    saveState();
+    renderTrace();
+  });
+  document.getElementById("traceNext").addEventListener("click", ()=>{
+    state.traceIndex = (state.traceIndex + 1) % ACTIVE.length;
+    saveState();
+    renderTrace();
+  });
+  document.getElementById("traceSpeak").addEventListener("click", ()=>{
+    speak(ACTIVE[state.traceIndex].char);
+  });
+  document.getElementById("traceClear").addEventListener("click", clearCanvas);
+  document.getElementById("traceDone").addEventListener("click", ()=>{
+    const h = ACTIVE[state.traceIndex];
+    markPracticed(h.char);
+    mascotHappy();
+    launchConfetti(30);
+    renderTable();
+    setTimeout(()=>{
+      state.traceIndex = (state.traceIndex + 1) % ACTIVE.length;
+      saveState();
+      renderTrace();
+    }, 700);
+  });
+
+  /* ---------- 初期化 ---------- */
+  refreshSoundBtn();
+  updateProgressPill();
+  renderTable();
+  updateStreakGauge();
+
+})();
+</script>
+</body>
+</html>
